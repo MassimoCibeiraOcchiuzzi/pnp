@@ -1,0 +1,7 @@
+Se ha generado un nuevo Lote 00016079
+Se procesaron 12 Recibos correctamente
+Pagos no procesables
+Nº	Codigo de Barras	Error
+00010102	0937022999990024101000830173999900241038	El monto pagado (109569) no coincide con el monto de la Cuota (142566,0000) ni el monto de pronto pago (142566,0000) Alumno: Peralta , Julián Andrés Sub Concepto Ingreso: 1564
+00010703	847390	La Cuota (847390) ya se encuentra asociada al Recibo 00024675/2024 (Id = 437464) Alumno: Equipo de fútbol - Tercer Tiempo Sub Concepto Ingreso: clausura 24
+00010840	0937022999990024315000864369999900243203	No existe una Cuota para el Código 0937022999990024315000864369999900243203

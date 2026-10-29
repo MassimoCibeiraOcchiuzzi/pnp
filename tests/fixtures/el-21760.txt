@@ -1,0 +1,9 @@
+Asunto: Se ha generado un nuevo Lote 00021760
+
+Se ha generado un nuevo Lote 00021760
+Se procesaron 41 Recibos correctamente
+Pagos no procesables
+
+Nº	Codigo de Barras	Error
+00012401	0937022999990026253000935644999900262465	El monto pagado (166500) no coincide con el monto de la Cuota (129550,0000) ni el monto de pronto pago (129550,0000) Alumno: Fernandez Aguirre , Bruno Ignacio Sub Concepto Ingreso: 2538
+00012402	0937022999990026222000949154999900262371	No existe una Cuota para el Código 0937022999990026222000949154999900262371

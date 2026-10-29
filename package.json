@@ -1,0 +1,11 @@
+{
+  "name": "resolver-pnp-html",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Herramienta local (HTML offline) para resolver Pagos No Procesables del SCI.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "build": "node build.mjs"
+  }
+}

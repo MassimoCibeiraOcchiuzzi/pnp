@@ -1,0 +1,18 @@
+[
+  { "id": "notificacion-1684", "titulo": "Notificación de lote 1684 (E-Learning, PENDIENTE)", "texto": "notificacion-1684.txt" },
+  { "id": "error-lote-20457", "titulo": "Error de lote 20457 (duplicados)", "texto": "error-lote-20457.txt", "archivoLote": "archivo-lote-duplicados.txt" },
+  { "id": "error-lote-20472", "titulo": "Error de lote 20472 (Object reference)", "texto": "error-lote-20472.txt" },
+  { "id": "error-lote-10656", "titulo": "Error de lote 10656 (cantidad / importes)", "texto": "error-lote-10656.txt" },
+  { "id": "el-21760", "titulo": "Lote E-Learning 21760: B1 + B2 con query (ejemplo de SKILL.md)", "texto": "el-21760.txt", "query": "el-21760-query.tsv", "overrides": { "pnps": { "12402": { "nombre": "Ruiz Ortega, Micaela Belen" } } } },
+  { "id": "pnp-10703", "titulo": "PNP 00010703: cuota ya impactada (Equipo de fútbol → SAE)", "texto": "pnp-10703-cuota-impactada.txt" },
+  { "id": "pnp-10102", "titulo": "PNP 00010102: monto no coincide", "texto": "pnp-10102-monto.txt" },
+  { "id": "pnp-10840", "titulo": "PNP 00010840: no existe cuota (40 dígitos)", "texto": "pnp-10840-no-existe.txt" },
+  { "id": "pnp-518985", "titulo": "No existe cuota con ID corto 518985 (irresoluble)", "texto": "pnp-518985-irresoluble.txt" },
+  { "id": "mojibake", "titulo": "Nombre con caracteres rotos (MuÃ±oz)", "texto": "mojibake.txt" },
+  { "id": "b4", "titulo": "Error desconocido (B4)", "texto": "b4-desconocido.txt" },
+  { "id": "formato-una-linea", "titulo": "Tres PNP pegados todo en una línea", "texto": "formato-una-linea.txt" },
+  { "id": "usuario", "titulo": "Ticket de usuario con comprobante", "texto": "usuario-comprobante.txt" },
+  { "id": "tesoreria-21852", "titulo": "Lote 21852 + mensaje de Tesorería", "texto": "lote-21852.txt", "tesoreria": "tesoreria-johanna.txt" },
+  { "id": "tesoreria-21852-query", "titulo": "Lote 21852 + Tesorería + query (query con datos ficticios de test)", "texto": "lote-21852.txt", "query": "lote-21852-query.tsv", "tesoreria": "tesoreria-johanna.txt" },
+  { "id": "tesoreria-sola", "titulo": "Pedido de Tesorería solo (sin ticket del SCI)", "tesoreria": "tesoreria-johanna-plano.txt" }
+]

@@ -1,0 +1,8 @@
+Asunto: Se ha generado un nuevo Lote 00016079
+
+Se ha generado un nuevo Lote 00016079
+Se procesaron 12 Recibos correctamente
+Pagos no procesables
+
+Nº	Codigo de Barras	Error
+00010102	0937022999990024101000830173999900241038	El monto pagado (109569) no coincide con el monto de la Cuota (142566,0000) ni el monto de pronto pago (142566,0000) Alumno: Peralta , Julián Andrés Sub Concepto Ingreso: 1564

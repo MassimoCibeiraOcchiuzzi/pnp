@@ -1,0 +1,5 @@
+Asunto: Se produjo un error al generar el Lote 00010656
+
+Se ha generado un nuevo Lote 00010656 con el siguiente error La cantidad de comprobantes procesados no coincide con la cantidad de comprobantes informados en el lote ó los importes del lote difieren de la suma de importes del detalle.
+
+Para mas información haga click Aqui

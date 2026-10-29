@@ -1,0 +1,64 @@
+Muchas gracias, agrego estos pagos que también están sin número de recibo:
+1231045 2122075 Ferraro,Camila
+[cferraro27@example.com](mailto:cferraro27@example.com) 183887 - 2026-10-01 01-10-2026 25-09-2026 Mercado pago Pesos 80000 77967.2 62373.76 No liquidado Argentina En tesoreria
+En lote nº 1895
+
+1231164 2122141 Lucia,Benitez
+[lu30783@example.com](mailto:lu30783@example.com) 183855 - 2026-10-07 07-10-2026 26-09-2026 Mercado pago Pesos 52038 51408.3 41126.67 No liquidado Argentina En tesoreria
+En lote nº 1895
+
+1244617 2132953 quiroga,Tomas
+[quirogatomas2@example.com](mailto:quirogatomas2@example.com) 183613 - 2026-08-18 18-08-2026 15-10-2026 Mercado pago Pesos 725000 706578 706577.75 No liquidado Argentina En tesoreria
+En lote nº 1895
+1227749 2119961 MEDINA,Ezequiel
+[ezemed@example.com](mailto:ezemed@example.com) 186730 - 2026-09-30 30-09-2026 21-09-2026 Mercado pago 3 Cuotas Pesos 110000 100018 80014.00 No liquidado Argentina En tesoreria
+En lote nº 1894
+
+1227872 2120017 Domínguez,Ana Paula
+[anapdominguez@example.com](mailto:anapdominguez@example.com) 184536 - 2026-09-29 29-09-2026 21-09-2026 Mercado pago 3 Cuotas Pesos 300890 297249 237799.38 No liquidado Argentina En tesoreria
+En lote nº 1894
+
+1228688 2120341 ROMERO,SOFIA
+[romerosofia@example.com](mailto:romerosofia@example.com) 182012 - 2026-10-09 09-10-2026 22-09-2026 Mercado pago 3 Cuotas Pesos 180039 163700 130960.36 No liquidado Argentina En tesoreria
+En lote nº 1894
+
+1229045 2120561 Castro,Martin
+[martincastro0912@example.com](mailto:martincastro0912@example.com) 182012 - 2026-10-09 09-10-2026 22-09-2026 Mercado pago 3 Cuotas Pesos 180039 163700 130960.36 No liquidado Argentina En tesoreria
+En lote nº 1894
+
+1229877 2120975 Molina,Paula
+[p.molina@example.com](mailto:p.molina@example.com) 182012 - 2026-10-09 09-10-2026 23-09-2026 Mercado pago 3 Cuotas Pesos 180039 177861 142288.42 No liquidado Argentina En tesoreria
+En lote nº 1894
+1159269 2027515 PAREDES,JOAQUIN
+[calidad@empresa-ejemplo.com.ar](mailto:calidad@empresa-ejemplo.com.ar) 182312 - 2026-10-16 16-10-2026 22-07-2026 Mercado pago 3 y 6 Cuotas Pesos 191261 186401 186401.06 No liquidado Argentina En tesoreria
+En lote nº 1893
+
+1232541 2122945 Herrera,Nicolas
+[nicolash831@example.com](mailto:nicolash831@example.com) 183041 - 2026-10-14 14-10-2026 29-09-2026 Mercado pago 3 y 6 Cuotas Pesos 92433 79571 79570.95 No liquidado Argentina En tesoreria
+En lote nº 1893
+
+1232542 2122945 Herrera,Nicolas
+[nicolash831@example.com](mailto:nicolash831@example.com) 183041 - 2026-10-14 14-10-2026 29-09-2026 Mercado pago 3 y 6 Cuotas Pesos 92433 84044.7 84044.70 No liquidado Argentina En tesoreria
+En lote nº 1893
+
+1236361 2125786 Acosta,Federico
+[federico.acosta@example.com](mailto:federico.acosta@example.com) 182262 - 2026-10-14 14-10-2026 02-10-2026 Mercado pago 3 y 6 Cuotas Pesos 194454 167396 167395.73 No liquidado Argentina En tesoreria
+En lote nº 1893
+
+1238886 2127671 Sosa,Gabriel Andres
+[gsosa@empresa-ejemplo.com.ar](mailto:gsosa@empresa-ejemplo.com.ar) 183041 - 2026-10-14 14-10-2026 05-10-2026 Mercado pago 3 y 6 Cuotas Pesos 217489 187225 187225.40 No liquidado Argentina En tesoreria
+En lote nº 1893
+
+1243651 2131922 Rios,Florencia
+[rrhh@otra-empresa.com.ar](mailto:rrhh@otra-empresa.com.ar) 185842 - 2026-10-16 16-10-2026 08-10-2026 Mercado pago 3 y 6 Cuotas Pesos 229235 223410 223410.14 No liquidado Argentina En tesoreria
+En lote nº 1893
+
+1244508 2132869 vega,Matias
+[matias.vega@example.org](mailto:matias.vega@example.org) 184429 - 2026-10-15 15-10-2026 15-10-2026 Mercado pago 3 y 6 Cuotas Pesos 206224 177528 177527.93 No liquidado Argentina En tesoreria
+En lote nº 1893
+1244349 2131220 Navarro,Pablo Ezequiel
+[pnavarro89@example.com](mailto:pnavarro89@example.com) 183613 - 2026-08-18 18-08-2026 07-10-2026 Mercado pago Pesos 242000 235851 235850.78 No liquidado Argentina En tesoreria
+En lote nº 1892
+
+Por favor,
+GRACIAS.

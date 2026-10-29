@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<title>Resolver PNP</title>
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body>
+<a class="saltar" href="#entrada">Saltar a la entrada</a>
+<header class="barra">
+  <div class="marca">
+    <h1>Resolver PNP</h1>
+    <p>Pagos No Procesables y errores de lote del SCI · 100 % local, sin IA ni conexión</p>
+  </div>
+  <div class="acciones">
+    <label class="sr-only" for="ejemplo">Cargar ejemplo</label>
+    <select id="ejemplo">
+      <option value="">Cargar ejemplo…</option>
+    </select>
+    <button type="button" class="btn" id="limpiar">Limpiar</button>
+    <button type="button" class="btn" id="tema" aria-pressed="false">☾ Modo oscuro</button>
+    <button type="button" class="btn abrir-ayuda">Cómo se usa</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section id="entrada" class="columna" aria-labelledby="entrada-titulo">
+    <h2 id="entrada-titulo" class="sr-only">Entrada</h2>
+
+    <div class="tarjeta">
+      <label class="titulo-campo" for="texto">1. Texto del ticket / mail del SCI</label>
+      <textarea id="texto" rows="12" spellcheck="false" placeholder="Pegá acá el mail o ticket completo (asunto + cuerpo). Sirve copiado de osTicket, OTRS o del cliente de mail."></textarea>
+    </div>
+
+    <div class="tarjeta">
+      <label class="titulo-campo" for="query">2. Resultado de la query (opcional)</label>
+      <textarea id="query" rows="5" spellcheck="false" placeholder="Pegá la grilla de SSMS con encabezados (separada por tabs; también acepta ; o ,)."></textarea>
+      <small class="ayuda">Si faltan datos, a la derecha aparece la query lista con el WHERE completado.</small>
+    </div>
+
+    <fieldset class="tarjeta">
+      <legend class="titulo-campo">3. Tus datos</legend>
+      <div class="grilla-campos">
+        <div class="campo campo-ancho">
+          <label for="firma">Firma (se recuerda en este navegador)</label>
+          <textarea id="firma" rows="2" placeholder="Nombre Apellido&#10;Soporte de Aplicaciones"></textarea>
+        </div>
+        <div class="campo">
+          <label for="fecha">Fecha (DD/MM/AAAA)</label>
+          <input id="fecha" type="text" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="recibo">Nº de recibo (cobro manual)</label>
+          <input id="recibo" type="text" autocomplete="off" placeholder="si se cobró a mano">
+        </div>
+        <div class="campo">
+          <label for="ticket-nro">Nº de nuestro ticket</label>
+          <input id="ticket-nro" type="text" autocomplete="off" placeholder="ej. 123456">
+        </div>
+        <div class="campo">
+          <label for="ticket-id">ID del ticket en osTicket</label>
+          <input id="ticket-id" type="text" inputmode="numeric" autocomplete="off" placeholder="el ?id= de la URL">
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="tarjeta">
+      <label class="titulo-campo" for="tesoreria">4. Mensaje de Tesorería (opcional)</label>
+      <textarea id="tesoreria" rows="5" spellcheck="false" placeholder="Pegá el mail de Tesorería con los pagos sin número de recibo (ID de pago, orden, nombre, mail, fechas, montos y &quot;En lote nº&quot;)."></textarea>
+      <small class="ayuda">Pegá el mail de Tesorería con los pagos sin número de recibo. Se cruza con los PNP; no se guarda en el navegador.</small>
+    </div>
+
+    <div id="extra" class="tarjeta-extra"></div>
+  </section>
+
+  <section id="resultados" class="columna" aria-labelledby="resultados-titulo">
+    <div class="resultados-cabecera">
+      <h2 id="resultados-titulo">Resultado</h2>
+      <div id="tipo" class="badges" aria-live="polite"></div>
+      <button type="button" class="btn btn-primario" id="copiar-todo" disabled>Copiar todo</button>
+    </div>
+    <div id="avisos" aria-live="polite"></div>
+    <h2 id="pnps-titulo" class="subtitulo" hidden>PNPs: revisá y contestá lo que pide SCI</h2>
+    <div id="pnps"></div>
+    <div id="salidas" aria-live="polite"></div>
+  </section>
+</main>
+
+<footer class="pie">
+  <span id="version"></span>
+  <span>·</span>
+  <a href="#" class="abrir-ayuda">Cómo se usa</a>
+  <span>·</span>
+  <span>Reglas: skill "resolver-pnp" (SKILL.md)</span>
+</footer>
+
+<dialog id="ayuda" aria-labelledby="ayuda-titulo">
+  <h2 id="ayuda-titulo">Cómo se usa</h2>
+  <ol>
+    <li><strong>Pegá</strong> el ticket/mail del SCI en el cuadro 1. La herramienta detecta solo si es una notificación de lote, un error de lote, un lote con PNP o un ticket de una persona.</li>
+    <li><strong>Revisá el diagnóstico</strong> y las tarjetas de cada PNP (caso, área dueña, advertencias).</li>
+    <li><strong>Contestá las preguntas de SCI</strong> de cada PNP (¿el monto coincide con otra cuota?, ¿aparece la cuota?, ¿qué ves en la inscripción?). Mientras diga "Todavía no lo revisé", los textos salen como <em>borrador</em> asumiendo derivación.</li>
+    <li><strong>Completá lo que falta</strong>: corré la query que aparece (DB SysAdmin), pegá la grilla en el cuadro 2, o escribí los datos a mano en cada PNP. Lo marcado en amarillo es un hueco <mark>[COMPLETAR: …]</mark>.</li>
+    <li><strong>Mensaje de Tesorería</strong> (opcional, cuadro 4): pegá el mail con los pagos sin recibo y la herramienta los cruza con los PNP (lote EL, monto, fecha, nombre), completa nombre y mail de los "No existe una Cuota" y arma la respuesta. Ojo: el "lote nº" de Tesorería es el lote de E-Learning del nombre de archivo, no el ID de lote del SCI.</li>
+    <li><strong>Copiá</strong> cada texto (o "Copiar todo"): ticket a E-Learning, mail al coordinador, Descripción Resolución del PNP y nota interna.</li>
+  </ol>
+  <p><strong>Límites:</strong> no tiene acceso a SCI ni a la base; nunca inventa fechas, montos, nombres ni números de ticket. No guarda datos de alumnos (solo tu firma y el tema en este navegador). Los casos sin procedimiento documentado se derivan a Soporte de Aplicaciones.</p>
+  <p>Contactos y palabras clave: <code>src/config.js</code> + <code>node build.mjs</code>.</p>
+  <button type="button" class="btn btn-primario" id="cerrar-ayuda">Cerrar</button>
+</dialog>
+
+<script>
+/*__JS__*/
+</script>
+</body>
+</html>

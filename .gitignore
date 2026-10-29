@@ -1,0 +1,16 @@
+# Dependencias (solo para tools/e2e.mjs: cd tools && npm install)
+node_modules/
+
+# Capturas del E2E: se regeneran con `node tools/e2e.mjs` y pueden mostrar datos de alumnos
+tools/capturas/
+
+# Material interno: doc del SCI con contraseñas y datos de servidores, prompts con datos reales.
+# NO subir.
+interno/
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/

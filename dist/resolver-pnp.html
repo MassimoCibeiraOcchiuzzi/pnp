@@ -1,0 +1,3193 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<title>Resolver PNP</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --panel-2: #f8f9fb;
+  --texto: #1b1f24;
+  --texto-2: #545d68;
+  --borde: #d4d8de;
+  --acento: #1f5fbf;
+  --acento-texto: #ffffff;
+  --foco: #f0a400;
+  --mark: #fff1a8;
+  --mark-texto: #3b2f00;
+  --codigo: #eef1f5;
+
+  --b1-bg: #fff3d6; --b1-tx: #7a4b00;
+  --b2-bg: #dceaff; --b2-tx: #123f86;
+  --b3-bg: #ece3ff; --b3-tx: #4a2a91;
+  --b4-bg: #e6e8eb; --b4-tx: #384049;
+  --irr-bg: #fde0e0; --irr-tx: #8f1616;
+  --ok-bg: #dcf5e3; --ok-tx: #155f2c;
+  --area-bg: #d7f2f0; --area-tx: #0d5650;
+  --alerta-bg: #fff4e0; --alerta-tx: #7a3d00; --alerta-borde: #e5a54a;
+  --info-bg: #e8f1fd; --info-tx: #1e3f6e; --info-borde: #8fb3e6;
+  --borr-bg: #f1e7d0; --borr-tx: #5c4512;
+  --err-bg: #fbdada; --err-tx: #8a1111;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111418;
+  --panel: #1a1f25;
+  --panel-2: #20262d;
+  --texto: #e7eaee;
+  --texto-2: #a6afba;
+  --borde: #343c46;
+  --acento: #6ea8ff;
+  --acento-texto: #0d1420;
+  --foco: #ffc24d;
+  --mark: #5c4b00;
+  --mark-texto: #fff3bf;
+  --codigo: #222a33;
+
+  --b1-bg: #4a3500; --b1-tx: #ffd98a;
+  --b2-bg: #15305a; --b2-tx: #b9d4ff;
+  --b3-bg: #33215f; --b3-tx: #d9c8ff;
+  --b4-bg: #2f353d; --b4-tx: #d0d6dd;
+  --irr-bg: #5a1818; --irr-tx: #ffc4c4;
+  --ok-bg: #133d22; --ok-tx: #aeeec2;
+  --area-bg: #0f3d3a; --area-tx: #a6ece5;
+  --alerta-bg: #3d2a0c; --alerta-tx: #ffd9a3; --alerta-borde: #a06a1c;
+  --info-bg: #142a47; --info-tx: #c4dbff; --info-borde: #36588a;
+  --borr-bg: #3b3222; --borr-tx: #ecdcb6;
+  --err-bg: #561616; --err-tx: #ffc9c9;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111418; --panel: #1a1f25; --panel-2: #20262d; --texto: #e7eaee; --texto-2: #a6afba;
+    --borde: #343c46; --acento: #6ea8ff; --acento-texto: #0d1420; --foco: #ffc24d;
+    --mark: #5c4b00; --mark-texto: #fff3bf; --codigo: #222a33;
+    --b1-bg: #4a3500; --b1-tx: #ffd98a; --b2-bg: #15305a; --b2-tx: #b9d4ff; --b3-bg: #33215f; --b3-tx: #d9c8ff;
+    --b4-bg: #2f353d; --b4-tx: #d0d6dd; --irr-bg: #5a1818; --irr-tx: #ffc4c4; --ok-bg: #133d22; --ok-tx: #aeeec2;
+    --area-bg: #0f3d3a; --area-tx: #a6ece5; --alerta-bg: #3d2a0c; --alerta-tx: #ffd9a3; --alerta-borde: #a06a1c;
+    --info-bg: #142a47; --info-tx: #c4dbff; --info-borde: #36588a; --borr-bg: #3b3222; --borr-tx: #ecdcb6;
+    --err-bg: #561616; --err-tx: #ffc9c9;
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--texto);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+h1, h2, h3, h4 { margin: 0; line-height: 1.25; }
+code, pre, textarea, .mono { font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.saltar { position: absolute; left: -9999px; }
+.saltar:focus { left: 16px; top: 8px; background: var(--panel); padding: 6px 10px; z-index: 10; }
+
+:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+
+.barra {
+  display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+  padding: 14px 24px; background: var(--panel); border-bottom: 1px solid var(--borde);
+}
+.marca h1 { font-size: 1.35rem; }
+.marca p { margin: 2px 0 0; color: var(--texto-2); font-size: .9rem; }
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.btn, select, input, textarea {
+  font: inherit; color: var(--texto); background: var(--panel); border: 1px solid var(--borde); border-radius: 8px;
+}
+.btn { padding: 6px 12px; cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: var(--acento); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-primario { background: var(--acento); color: var(--acento-texto); border-color: var(--acento); font-weight: 600; }
+.btn-copiar { padding: 3px 10px; font-size: .85rem; }
+.btn-copiar.ok { background: var(--ok-bg); color: var(--ok-tx); border-color: var(--ok-tx); }
+select { padding: 6px 8px; max-width: 100%; }
+input { padding: 6px 8px; width: 100%; }
+textarea { padding: 8px; width: 100%; resize: vertical; font-size: .85rem; }
+input::placeholder, textarea::placeholder { color: var(--texto-2); opacity: .8; }
+
+.layout {
+  display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px;
+  padding: 20px 24px; max-width: 1600px; margin: 0 auto;
+}
+@media (max-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .barra { padding: 12px 16px; }
+}
+.columna { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+.tarjeta, fieldset.tarjeta {
+  background: var(--panel); border: 1px solid var(--borde); border-radius: 10px; padding: 14px; margin: 0; min-width: 0;
+}
+.tarjeta-extra { display: flex; flex-direction: column; gap: 14px; }
+.tarjeta-extra:empty { display: none; }
+.titulo-campo { display: block; font-weight: 700; margin-bottom: 6px; padding: 0; }
+fieldset { border: 1px solid var(--borde); border-radius: 10px; }
+fieldset.lote-datos { background: var(--panel); padding: 12px 14px; margin: 0; display: grid; gap: 10px; }
+legend { font-weight: 700; padding: 0 4px; }
+
+.campo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.campo label { font-size: .85rem; color: var(--texto-2); font-weight: 600; }
+.campo-linea { flex-direction: row; align-items: center; gap: 10px; margin-top: 10px; }
+.campo-linea select, .campo-linea input { flex: 1; }
+.campo-linea label { min-width: 92px; }
+.campo-ancho { grid-column: 1 / -1; }
+.grilla-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.ayuda { color: var(--texto-2); font-size: .83rem; margin: 4px 0 0; }
+.ayuda p { margin: 0 0 4px; }
+.mini { color: var(--texto-2); font-size: .8rem; }
+
+.resultados-cabecera { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.resultados-cabecera h2 { font-size: 1.15rem; }
+.resultados-cabecera .btn-primario { margin-left: auto; }
+.subtitulo { font-size: 1rem; margin-top: 4px; }
+#pnps, #salidas { display: flex; flex-direction: column; gap: 14px; }
+
+.badges { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: .78rem; font-weight: 700; white-space: nowrap; }
+.b-b1 { background: var(--b1-bg); color: var(--b1-tx); }
+.b-b2 { background: var(--b2-bg); color: var(--b2-tx); }
+.b-b3 { background: var(--b3-bg); color: var(--b3-tx); }
+.b-b4, .b-neutro { background: var(--b4-bg); color: var(--b4-tx); }
+.b-irresoluble, .b-pendiente-si { background: var(--irr-bg); color: var(--irr-tx); }
+.b-cobro { background: var(--ok-bg); color: var(--ok-tx); }
+.b-area { background: var(--area-bg); color: var(--area-tx); }
+.b-alerta { background: var(--alerta-bg); color: var(--alerta-tx); }
+.b-borrador { background: var(--borr-bg); color: var(--borr-tx); }
+.b-derivar, .b-tipo { background: var(--info-bg); color: var(--info-tx); }
+.b-error-lote { background: var(--err-bg); color: var(--err-tx); }
+
+.aviso { margin: 6px 0 0; padding: 7px 10px; border-radius: 8px; border-left: 4px solid; font-size: .88rem; }
+.aviso-alerta { background: var(--alerta-bg); color: var(--alerta-tx); border-color: var(--alerta-borde); }
+.aviso-info { background: var(--info-bg); color: var(--info-tx); border-color: var(--info-borde); }
+#avisos:empty { display: none; }
+
+.pnp-cabecera { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; margin-bottom: 6px; }
+.pnp-cabecera h3 { font-size: 1.05rem; }
+.error-textual { margin-top: 10px; background: var(--codigo); border-radius: 8px; padding: 8px 10px; }
+.error-textual code { display: block; white-space: pre-wrap; word-break: break-word; font-size: .84rem; margin-top: 2px; }
+.datos { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 12px; margin: 8px 0 0; font-size: .88rem; }
+.datos dt { color: var(--texto-2); }
+.datos dd { margin: 0; word-break: break-word; }
+
+.pregunta { margin: 12px 0 0; padding: 10px 12px; background: var(--panel-2); }
+.pregunta legend { font-size: .92rem; }
+.opcion { display: flex; gap: 8px; align-items: flex-start; padding: 3px 0; }
+.opcion input { width: auto; margin-top: 4px; }
+.opcion label { cursor: pointer; }
+
+details.editar { margin-top: 10px; }
+details summary { cursor: pointer; font-weight: 600; color: var(--acento); }
+details.opcionales { margin-top: 10px; }
+details .grilla-campos { margin-top: 8px; }
+
+.salida-cabecera, .sub-cabecera { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.salida-cabecera h3 { font-size: 1rem; margin-right: auto; }
+.sub-cabecera { margin-top: 10px; }
+.sub-cabecera strong { margin-right: auto; }
+.salida-texto {
+  margin: 8px 0 0; padding: 10px 12px; background: var(--codigo); border-radius: 8px;
+  white-space: pre-wrap; word-break: break-word; font-size: .84rem; max-height: 520px; overflow: auto;
+}
+mark { background: var(--mark); color: var(--mark-texto); border-radius: 3px; padding: 0 2px; }
+.salida.info h3 { font-size: 1rem; margin-bottom: 6px; }
+.salida.info h4 { font-size: .92rem; margin-top: 10px; }
+.salida.info ol { margin: 6px 0 0; padding-left: 22px; }
+.salida.info li { margin: 3px 0; }
+.grande { font-size: 1rem; margin: 4px 0 8px; }
+.vacio { color: var(--texto-2); border: 2px dashed var(--borde); border-radius: 10px; padding: 28px; text-align: center; }
+
+.pie { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 16px; color: var(--texto-2); font-size: .85rem; }
+.pie a { color: var(--acento); }
+
+dialog { max-width: 640px; width: calc(100% - 32px); border: 1px solid var(--borde); border-radius: 12px; background: var(--panel); color: var(--texto); padding: 20px; }
+dialog::backdrop { background: rgba(0, 0, 0, .45); }
+dialog ol { padding-left: 20px; }
+dialog li { margin: 6px 0; }
+
+.oculto-copia { position: fixed; left: -9999px; top: 0; }
+
+.acciones { min-width: 0; max-width: 100%; }
+#ejemplo { width: 280px; max-width: 100%; min-width: 0; }
+
+/* Cruce con Tesorería */
+.btn-chico { padding: 2px 9px; font-size: .82rem; }
+.tesoreria-pnp p { margin: 0 0 4px; }
+.tesoreria-pnp p:last-child { margin-bottom: 0; }
+.tesoreria-pnp ul { margin: 4px 0 0; padding-left: 18px; }
+.tesoreria-pnp li { margin-bottom: 4px; }
+.tabla-scroll { overflow-x: auto; margin-top: 10px; border: 1px solid var(--borde); border-radius: 8px; }
+.tabla-scroll:focus-visible { outline: 3px solid var(--foco); outline-offset: 2px; }
+table.cruce { border-collapse: collapse; width: 100%; font-size: .82rem; }
+table.cruce th, table.cruce td { padding: 5px 8px; border-bottom: 1px solid var(--borde); text-align: left; vertical-align: top; white-space: nowrap; }
+table.cruce th { background: var(--panel-2); color: var(--texto-2); font-weight: 600; position: sticky; top: 0; }
+table.cruce td.razones { white-space: normal; min-width: 320px; color: var(--texto-2); }
+table.cruce tbody tr:last-child td { border-bottom: 0; }
+table.cruce tr.fila-cruzado td:first-child { box-shadow: inset 4px 0 0 var(--ok-tx); }
+table.cruce tr.fila-ambiguo td:first-child { box-shadow: inset 4px 0 0 var(--alerta-borde); }
+table.cruce tr.fila-sin_pnp td, table.cruce tr.fila-sin_datos td { color: var(--texto-2); }
+
+</style>
+</head>
+<body>
+<a class="saltar" href="#entrada">Saltar a la entrada</a>
+<header class="barra">
+  <div class="marca">
+    <h1>Resolver PNP</h1>
+    <p>Pagos No Procesables y errores de lote del SCI · 100 % local, sin IA ni conexión</p>
+  </div>
+  <div class="acciones">
+    <label class="sr-only" for="ejemplo">Cargar ejemplo</label>
+    <select id="ejemplo">
+      <option value="">Cargar ejemplo…</option>
+    </select>
+    <button type="button" class="btn" id="limpiar">Limpiar</button>
+    <button type="button" class="btn" id="tema" aria-pressed="false">☾ Modo oscuro</button>
+    <button type="button" class="btn abrir-ayuda">Cómo se usa</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section id="entrada" class="columna" aria-labelledby="entrada-titulo">
+    <h2 id="entrada-titulo" class="sr-only">Entrada</h2>
+
+    <div class="tarjeta">
+      <label class="titulo-campo" for="texto">1. Texto del ticket / mail del SCI</label>
+      <textarea id="texto" rows="12" spellcheck="false" placeholder="Pegá acá el mail o ticket completo (asunto + cuerpo). Sirve copiado de osTicket, OTRS o del cliente de mail."></textarea>
+    </div>
+
+    <div class="tarjeta">
+      <label class="titulo-campo" for="query">2. Resultado de la query (opcional)</label>
+      <textarea id="query" rows="5" spellcheck="false" placeholder="Pegá la grilla de SSMS con encabezados (separada por tabs; también acepta ; o ,)."></textarea>
+      <small class="ayuda">Si faltan datos, a la derecha aparece la query lista con el WHERE completado.</small>
+    </div>
+
+    <fieldset class="tarjeta">
+      <legend class="titulo-campo">3. Tus datos</legend>
+      <div class="grilla-campos">
+        <div class="campo campo-ancho">
+          <label for="firma">Firma (se recuerda en este navegador)</label>
+          <textarea id="firma" rows="2" placeholder="Nombre Apellido&#10;Soporte de Aplicaciones"></textarea>
+        </div>
+        <div class="campo">
+          <label for="fecha">Fecha (DD/MM/AAAA)</label>
+          <input id="fecha" type="text" inputmode="numeric" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="recibo">Nº de recibo (cobro manual)</label>
+          <input id="recibo" type="text" autocomplete="off" placeholder="si se cobró a mano">
+        </div>
+        <div class="campo">
+          <label for="ticket-nro">Nº de nuestro ticket</label>
+          <input id="ticket-nro" type="text" autocomplete="off" placeholder="ej. 123456">
+        </div>
+        <div class="campo">
+          <label for="ticket-id">ID del ticket en osTicket</label>
+          <input id="ticket-id" type="text" inputmode="numeric" autocomplete="off" placeholder="el ?id= de la URL">
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="tarjeta">
+      <label class="titulo-campo" for="tesoreria">4. Mensaje de Tesorería (opcional)</label>
+      <textarea id="tesoreria" rows="5" spellcheck="false" placeholder="Pegá el mail de Tesorería con los pagos sin número de recibo (ID de pago, orden, nombre, mail, fechas, montos y &quot;En lote nº&quot;)."></textarea>
+      <small class="ayuda">Pegá el mail de Tesorería con los pagos sin número de recibo. Se cruza con los PNP; no se guarda en el navegador.</small>
+    </div>
+
+    <div id="extra" class="tarjeta-extra"></div>
+  </section>
+
+  <section id="resultados" class="columna" aria-labelledby="resultados-titulo">
+    <div class="resultados-cabecera">
+      <h2 id="resultados-titulo">Resultado</h2>
+      <div id="tipo" class="badges" aria-live="polite"></div>
+      <button type="button" class="btn btn-primario" id="copiar-todo" disabled>Copiar todo</button>
+    </div>
+    <div id="avisos" aria-live="polite"></div>
+    <h2 id="pnps-titulo" class="subtitulo" hidden>PNPs: revisá y contestá lo que pide SCI</h2>
+    <div id="pnps"></div>
+    <div id="salidas" aria-live="polite"></div>
+  </section>
+</main>
+
+<footer class="pie">
+  <span id="version"></span>
+  <span>·</span>
+  <a href="#" class="abrir-ayuda">Cómo se usa</a>
+  <span>·</span>
+  <span>Reglas: skill "resolver-pnp" (SKILL.md)</span>
+</footer>
+
+<dialog id="ayuda" aria-labelledby="ayuda-titulo">
+  <h2 id="ayuda-titulo">Cómo se usa</h2>
+  <ol>
+    <li><strong>Pegá</strong> el ticket/mail del SCI en el cuadro 1. La herramienta detecta solo si es una notificación de lote, un error de lote, un lote con PNP o un ticket de una persona.</li>
+    <li><strong>Revisá el diagnóstico</strong> y las tarjetas de cada PNP (caso, área dueña, advertencias).</li>
+    <li><strong>Contestá las preguntas de SCI</strong> de cada PNP (¿el monto coincide con otra cuota?, ¿aparece la cuota?, ¿qué ves en la inscripción?). Mientras diga "Todavía no lo revisé", los textos salen como <em>borrador</em> asumiendo derivación.</li>
+    <li><strong>Completá lo que falta</strong>: corré la query que aparece (DB SysAdmin), pegá la grilla en el cuadro 2, o escribí los datos a mano en cada PNP. Lo marcado en amarillo es un hueco <mark>[COMPLETAR: …]</mark>.</li>
+    <li><strong>Mensaje de Tesorería</strong> (opcional, cuadro 4): pegá el mail con los pagos sin recibo y la herramienta los cruza con los PNP (lote EL, monto, fecha, nombre), completa nombre y mail de los "No existe una Cuota" y arma la respuesta. Ojo: el "lote nº" de Tesorería es el lote de E-Learning del nombre de archivo, no el ID de lote del SCI.</li>
+    <li><strong>Copiá</strong> cada texto (o "Copiar todo"): ticket a E-Learning, mail al coordinador, Descripción Resolución del PNP y nota interna.</li>
+  </ol>
+  <p><strong>Límites:</strong> no tiene acceso a SCI ni a la base; nunca inventa fechas, montos, nombres ni números de ticket. No guarda datos de alumnos (solo tu firma y el tema en este navegador). Los casos sin procedimiento documentado se derivan a Soporte de Aplicaciones.</p>
+  <p>Contactos y palabras clave: <code>src/config.js</code> + <code>node build.mjs</code>.</p>
+  <button type="button" class="btn btn-primario" id="cerrar-ayuda">Cerrar</button>
+</dialog>
+
+<script>
+(() => {
+'use strict';
+const BUILD = {"version":"1.1.0","fecha":"29/10/2026 14:26"};
+const EJEMPLOS = [{"id":"notificacion-1684","titulo":"Notificación de lote 1684 (E-Learning, PENDIENTE)","texto":"Asunto: Se ha generado un nuevo Lote Nro: 00001684\n\nEstimados el Centro de e-Learning cargo el siguiente Nro Lote: 00001684\n\nDetalles del lote en cuestión:\n\nNro. Lote: 1684\nEntidad Recaudadora: Mercado Pago\nMonto Bruto: 8673698,00\nComisión: 259182,57\nObservaciones: Fecha cobro desde: 2025-06-03 Fecha cobro hasta: 2025-06-10 MP\nArchivo: C:\\inetpub\\eFramework\\Data\\sites\\SCI\\ArchivosCobranza\\ELEARNING\\MERCADOPAGO\\PENDIENTE\\FP.9.EL.20250613.1684.txt\nEstado: PENDIENTE\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"error-lote-20457","titulo":"Error de lote 20457 (duplicados)","texto":"Asunto: Se produjo un error al generar el Lote 00020457\n\nSe ha generado un nuevo Lote 00020457 con el siguiente error Hay más de un registro con el mismo id/codigo de barras en el archivo. Cuota: 0937022999990025130000877393999900251298\n\nPara mas información haga click Aqui\n","query":"","tesoreria":"","archivoLote":"0000000120250910000016650000937022999990025130000877393999900251298\n0000000220250910000012955000937022999990025130000877401999900251301\n0000000320250910000016650000937022999990025130000877393999900251298\n0000000420250910000009800000937022999990025130000877455999900251322\n0000000520250910000009800000937022999990025130000877455999900251322\n0000000620250910000014256600937022999990025130000877502999900251344\n","overrides":null},{"id":"error-lote-20472","titulo":"Error de lote 20472 (Object reference)","texto":"Asunto: Se produjo un error al generar el Lote 00020472\n\nSe ha generado un nuevo Lote 00020472 con el siguiente error Object reference not set to an instance of an object.\n\nPara mas información haga click Aqui\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"error-lote-10656","titulo":"Error de lote 10656 (cantidad / importes)","texto":"Asunto: Se produjo un error al generar el Lote 00010656\n\nSe ha generado un nuevo Lote 00010656 con el siguiente error La cantidad de comprobantes procesados no coincide con la cantidad de comprobantes informados en el lote ó los importes del lote difieren de la suma de importes del detalle.\n\nPara mas información haga click Aqui\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"el-21760","titulo":"Lote E-Learning 21760: B1 + B2 con query (ejemplo de SKILL.md)","texto":"Asunto: Se ha generado un nuevo Lote 00021760\n\nSe ha generado un nuevo Lote 00021760\nSe procesaron 41 Recibos correctamente\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00012401\t0937022999990026253000935644999900262465\tEl monto pagado (166500) no coincide con el monto de la Cuota (129550,0000) ni el monto de pronto pago (129550,0000) Alumno: Fernandez Aguirre , Bruno Ignacio Sub Concepto Ingreso: 2538\n00012402\t0937022999990026222000949154999900262371\tNo existe una Cuota para el Código 0937022999990026222000949154999900262371\n","query":"PNP_Id\tLote_Id\tEntidadRecaudadora\tNombreArchivo\tError\tCodigoBarras\tFechaPago\tMontoPagado\tMontoCuota\tNombreInscripto\tDNI\tConceptoIngreso\tSubConceptoIngreso\tPlanPago\n12401\t21760\tMercado Pago\tFP.19.EL.20260923.1881_21760.txt\tEl monto pagado (166500) no coincide con el monto de la Cuota (129550,0000) ni el monto de pronto pago (129550,0000) Alumno: Fernandez Aguirre , Bruno Ignacio Sub Concepto Ingreso: 2538\t0937022999990026253000935644999900262465\t21/07/2026\t166500.00\t129550.0000\tFernandez Aguirre, Bruno Ignacio\tNULL\tDiplomatura en Relaciones Internacionales\t2538\t$222000 en un pago completo en pesos\n12402\t21760\tMercado Pago\tFP.19.EL.20260923.1881_21760.txt\tNo existe una Cuota para el Código 0937022999990026222000949154999900262371\t0937022999990026222000949154999900262371\t22/07/2026\t262682.00\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\n","tesoreria":"","archivoLote":"","overrides":{"pnps":{"12402":{"nombre":"Ruiz Ortega, Micaela Belen"}}}},{"id":"pnp-10703","titulo":"PNP 00010703: cuota ya impactada (Equipo de fútbol → SAE)","texto":"Asunto: Se ha generado un nuevo Lote 00014120\n\nSe ha generado un nuevo Lote 00014120\nSe procesaron 8 Recibos correctamente\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00010703\t847390\tLa Cuota (847390) ya se encuentra asociada al Recibo 00024675/2024 (Id = 437464) Alumno: Equipo de fútbol - Tercer Tiempo Sub Concepto Ingreso: clausura 24\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"pnp-10102","titulo":"PNP 00010102: monto no coincide","texto":"Asunto: Se ha generado un nuevo Lote 00016079\n\nSe ha generado un nuevo Lote 00016079\nSe procesaron 12 Recibos correctamente\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00010102\t0937022999990024101000830173999900241038\tEl monto pagado (109569) no coincide con el monto de la Cuota (142566,0000) ni el monto de pronto pago (142566,0000) Alumno: Peralta , Julián Andrés Sub Concepto Ingreso: 1564\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"pnp-10840","titulo":"PNP 00010840: no existe cuota (40 dígitos)","texto":"Asunto: Se ha generado un nuevo Lote 00015210\n\nSe ha generado un nuevo Lote 00015210\nSe procesaron 5 Recibos correctamente\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00010840\t0937022999990024315000864369999900243203\tNo existe una Cuota para el Código 0937022999990024315000864369999900243203\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"pnp-518985","titulo":"No existe cuota con ID corto 518985 (irresoluble)","texto":"Asunto: Se ha generado un nuevo Lote 00015333\n\nSe ha generado un nuevo Lote 00015333\nSe procesaron 3 Recibos correctamente\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00011022\t518985\tNo existe una Cuota para el Código 518985\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"mojibake","titulo":"Nombre con caracteres rotos (MuÃ±oz)","texto":"Asunto: Se ha generado un nuevo Lote 00017002\n\nSe ha generado un nuevo Lote 00017002\nSe procesaron 6 Recibos correctamente\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00011450\t0937022999990025012000870011999900250144\tEl monto pagado (98000) no coincide con el monto de la Cuota (105000,0000) ni el monto de pronto pago (105000,0000) Alumno: MuÃ±oz , MarÃ­a Sol Sub Concepto Ingreso: 3120\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"b4","titulo":"Error desconocido (B4)","texto":"Asunto: Se ha generado un nuevo Lote 00017540\n\nSe ha generado un nuevo Lote 00017540\nSe procesaron 9 Recibos correctamente\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00011987\t0937022999990025440000881234999900254412\tLa inscripción asociada a la cuota se encuentra dada de baja\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"formato-una-linea","titulo":"Tres PNP pegados todo en una línea","texto":"Se ha generado un nuevo Lote 00016079 Se procesaron 12 Recibos correctamente Pagos no procesables Nº Codigo de Barras Error 00010102 0937022999990024101000830173999900241038 El monto pagado (109569) no coincide con el monto de la Cuota (142566,0000) ni el monto de pronto pago (142566,0000) Alumno: Peralta , Julián Andrés Sub Concepto Ingreso: 1564 00010703 847390 La Cuota (847390) ya se encuentra asociada al Recibo 00024675/2024 (Id = 437464) Alumno: Equipo de fútbol - Tercer Tiempo Sub Concepto Ingreso: clausura 24 00010840 0937022999990024315000864369999900243203 No existe una Cuota para el Código 0937022999990024315000864369999900243203","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"usuario","titulo":"Ticket de usuario con comprobante","texto":"Hola, buenas tardes.\nLes dejo el comprobante de pago de Juan Pérez DNI 38.456.789. Pagué $129.550 el 15/09/2026 por Mercado Pago y en el campus me sigue figurando la cuota como impaga.\nGracias,\nJuan\n","query":"","tesoreria":"","archivoLote":"","overrides":null},{"id":"tesoreria-21852","titulo":"Lote 21852 + mensaje de Tesorería","texto":"Se ha generado un nuevo Lote 00021852\n\nSe procesaron 281 Recibos correctamente\n\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00012467\t0937022999990026283000948906999900262890\tNo existe una Cuota para el Código 0937022999990026283000948906999900262890\n00012468\t0937022999990026283000956683999900262940\tEl monto pagado (184866) no coincide con el monto de la Cuota (92433,0000) ni el monto de pronto pago (92433,0000) Alumno: Herrera , Nicolas Sub Concepto Ingreso: 1506\n00012469\t0937022999990026283000957225999900262870\tNo existe una Cuota para el Código 0937022999990026283000957225999900262870\n00012470\t0937022999990026283000957357999900262870\tNo existe una Cuota para el Código 0937022999990026283000957357999900262870\n00012471\t0937022999990026283000958251999900262880\tNo existe una Cuota para el Código 0937022999990026283000958251999900262880\n","query":"","tesoreria":"Muchas gracias, agrego estos pagos que también están sin número de recibo:\n1231045 2122075 Ferraro,Camila\n[cferraro27@example.com](mailto:cferraro27@example.com) 183887 - 2026-10-01 01-10-2026 25-09-2026 Mercado pago Pesos 80000 77967.2 62373.76 No liquidado Argentina En tesoreria\nEn lote nº 1895\n\n1231164 2122141 Lucia,Benitez\n[lu30783@example.com](mailto:lu30783@example.com) 183855 - 2026-10-07 07-10-2026 26-09-2026 Mercado pago Pesos 52038 51408.3 41126.67 No liquidado Argentina En tesoreria\nEn lote nº 1895\n\n1244617 2132953 quiroga,Tomas\n[quirogatomas2@example.com](mailto:quirogatomas2@example.com) 183613 - 2026-08-18 18-08-2026 15-10-2026 Mercado pago Pesos 725000 706578 706577.75 No liquidado Argentina En tesoreria\nEn lote nº 1895\n1227749 2119961 MEDINA,Ezequiel\n[ezemed@example.com](mailto:ezemed@example.com) 186730 - 2026-09-30 30-09-2026 21-09-2026 Mercado pago 3 Cuotas Pesos 110000 100018 80014.00 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1227872 2120017 Domínguez,Ana Paula\n[anapdominguez@example.com](mailto:anapdominguez@example.com) 184536 - 2026-09-29 29-09-2026 21-09-2026 Mercado pago 3 Cuotas Pesos 300890 297249 237799.38 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1228688 2120341 ROMERO,SOFIA\n[romerosofia@example.com](mailto:romerosofia@example.com) 182012 - 2026-10-09 09-10-2026 22-09-2026 Mercado pago 3 Cuotas Pesos 180039 163700 130960.36 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1229045 2120561 Castro,Martin\n[martincastro0912@example.com](mailto:martincastro0912@example.com) 182012 - 2026-10-09 09-10-2026 22-09-2026 Mercado pago 3 Cuotas Pesos 180039 163700 130960.36 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1229877 2120975 Molina,Paula\n[p.molina@example.com](mailto:p.molina@example.com) 182012 - 2026-10-09 09-10-2026 23-09-2026 Mercado pago 3 Cuotas Pesos 180039 177861 142288.42 No liquidado Argentina En tesoreria\nEn lote nº 1894\n1159269 2027515 PAREDES,JOAQUIN\n[calidad@empresa-ejemplo.com.ar](mailto:calidad@empresa-ejemplo.com.ar) 182312 - 2026-10-16 16-10-2026 22-07-2026 Mercado pago 3 y 6 Cuotas Pesos 191261 186401 186401.06 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1232541 2122945 Herrera,Nicolas\n[nicolash831@example.com](mailto:nicolash831@example.com) 183041 - 2026-10-14 14-10-2026 29-09-2026 Mercado pago 3 y 6 Cuotas Pesos 92433 79571 79570.95 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1232542 2122945 Herrera,Nicolas\n[nicolash831@example.com](mailto:nicolash831@example.com) 183041 - 2026-10-14 14-10-2026 29-09-2026 Mercado pago 3 y 6 Cuotas Pesos 92433 84044.7 84044.70 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1236361 2125786 Acosta,Federico\n[federico.acosta@example.com](mailto:federico.acosta@example.com) 182262 - 2026-10-14 14-10-2026 02-10-2026 Mercado pago 3 y 6 Cuotas Pesos 194454 167396 167395.73 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1238886 2127671 Sosa,Gabriel Andres\n[gsosa@empresa-ejemplo.com.ar](mailto:gsosa@empresa-ejemplo.com.ar) 183041 - 2026-10-14 14-10-2026 05-10-2026 Mercado pago 3 y 6 Cuotas Pesos 217489 187225 187225.40 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1243651 2131922 Rios,Florencia\n[rrhh@otra-empresa.com.ar](mailto:rrhh@otra-empresa.com.ar) 185842 - 2026-10-16 16-10-2026 08-10-2026 Mercado pago 3 y 6 Cuotas Pesos 229235 223410 223410.14 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1244508 2132869 vega,Matias\n[matias.vega@example.org](mailto:matias.vega@example.org) 184429 - 2026-10-15 15-10-2026 15-10-2026 Mercado pago 3 y 6 Cuotas Pesos 206224 177528 177527.93 No liquidado Argentina En tesoreria\nEn lote nº 1893\n1244349 2131220 Navarro,Pablo Ezequiel\n[pnavarro89@example.com](mailto:pnavarro89@example.com) 183613 - 2026-08-18 18-08-2026 07-10-2026 Mercado pago Pesos 242000 235851 235850.78 No liquidado Argentina En tesoreria\nEn lote nº 1892\n\nPor favor,\nGRACIAS.\n","archivoLote":"","overrides":null},{"id":"tesoreria-21852-query","titulo":"Lote 21852 + Tesorería + query (query con datos ficticios de test)","texto":"Se ha generado un nuevo Lote 00021852\n\nSe procesaron 281 Recibos correctamente\n\nPagos no procesables\n\nNº\tCodigo de Barras\tError\n00012467\t0937022999990026283000948906999900262890\tNo existe una Cuota para el Código 0937022999990026283000948906999900262890\n00012468\t0937022999990026283000956683999900262940\tEl monto pagado (184866) no coincide con el monto de la Cuota (92433,0000) ni el monto de pronto pago (92433,0000) Alumno: Herrera , Nicolas Sub Concepto Ingreso: 1506\n00012469\t0937022999990026283000957225999900262870\tNo existe una Cuota para el Código 0937022999990026283000957225999900262870\n00012470\t0937022999990026283000957357999900262870\tNo existe una Cuota para el Código 0937022999990026283000957357999900262870\n00012471\t0937022999990026283000958251999900262880\tNo existe una Cuota para el Código 0937022999990026283000958251999900262880\n","query":"-- DATOS FICTICIOS DE TEST: el nombre de archivo, las fechas y los montos de los B2 están inventados (copiados de 4 pagos del lote EL 1893 de Tesorería). No es una salida real de SysAdmin.\nPNP_Id\tLote_Id\tEntidadRecaudadora\tNombreArchivo\tError\tCodigoBarras\tFechaPago\tMontoPagado\tMontoCuota\tNombreInscripto\tDNI\tConceptoIngreso\tSubConceptoIngreso\tPlanPago\n12467\t21852\tMercado Pago\tFP.99.EL.20261016.1893_21852.txt\tNo existe una Cuota para el Código 0937022999990026283000948906999900262890\t0937022999990026283000948906999900262890\t22/07/2026\t191261.00\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\n12468\t21852\tMercado Pago\tFP.99.EL.20261016.1893_21852.txt\tEl monto pagado (184866) no coincide con el monto de la Cuota (92433,0000) ni el monto de pronto pago (92433,0000) Alumno: Herrera , Nicolas Sub Concepto Ingreso: 1506\t0937022999990026283000956683999900262940\t29/09/2026\t184866.00\t92433.0000\tHerrera, Nicolas\tNULL\tCurso ficticio de test\t1506\tPlan ficticio de test\n12469\t21852\tMercado Pago\tFP.99.EL.20261016.1893_21852.txt\tNo existe una Cuota para el Código 0937022999990026283000957225999900262870\t0937022999990026283000957225999900262870\t02/10/2026\t194454.00\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\n12470\t21852\tMercado Pago\tFP.99.EL.20261016.1893_21852.txt\tNo existe una Cuota para el Código 0937022999990026283000957357999900262870\t0937022999990026283000957357999900262870\t05/10/2026\t217489.00\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\n12471\t21852\tMercado Pago\tFP.99.EL.20261016.1893_21852.txt\tNo existe una Cuota para el Código 0937022999990026283000958251999900262880\t0937022999990026283000958251999900262880\t08/10/2026\t229235.00\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\n","tesoreria":"Muchas gracias, agrego estos pagos que también están sin número de recibo:\n1231045 2122075 Ferraro,Camila\n[cferraro27@example.com](mailto:cferraro27@example.com) 183887 - 2026-10-01 01-10-2026 25-09-2026 Mercado pago Pesos 80000 77967.2 62373.76 No liquidado Argentina En tesoreria\nEn lote nº 1895\n\n1231164 2122141 Lucia,Benitez\n[lu30783@example.com](mailto:lu30783@example.com) 183855 - 2026-10-07 07-10-2026 26-09-2026 Mercado pago Pesos 52038 51408.3 41126.67 No liquidado Argentina En tesoreria\nEn lote nº 1895\n\n1244617 2132953 quiroga,Tomas\n[quirogatomas2@example.com](mailto:quirogatomas2@example.com) 183613 - 2026-08-18 18-08-2026 15-10-2026 Mercado pago Pesos 725000 706578 706577.75 No liquidado Argentina En tesoreria\nEn lote nº 1895\n1227749 2119961 MEDINA,Ezequiel\n[ezemed@example.com](mailto:ezemed@example.com) 186730 - 2026-09-30 30-09-2026 21-09-2026 Mercado pago 3 Cuotas Pesos 110000 100018 80014.00 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1227872 2120017 Domínguez,Ana Paula\n[anapdominguez@example.com](mailto:anapdominguez@example.com) 184536 - 2026-09-29 29-09-2026 21-09-2026 Mercado pago 3 Cuotas Pesos 300890 297249 237799.38 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1228688 2120341 ROMERO,SOFIA\n[romerosofia@example.com](mailto:romerosofia@example.com) 182012 - 2026-10-09 09-10-2026 22-09-2026 Mercado pago 3 Cuotas Pesos 180039 163700 130960.36 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1229045 2120561 Castro,Martin\n[martincastro0912@example.com](mailto:martincastro0912@example.com) 182012 - 2026-10-09 09-10-2026 22-09-2026 Mercado pago 3 Cuotas Pesos 180039 163700 130960.36 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1229877 2120975 Molina,Paula\n[p.molina@example.com](mailto:p.molina@example.com) 182012 - 2026-10-09 09-10-2026 23-09-2026 Mercado pago 3 Cuotas Pesos 180039 177861 142288.42 No liquidado Argentina En tesoreria\nEn lote nº 1894\n1159269 2027515 PAREDES,JOAQUIN\n[calidad@empresa-ejemplo.com.ar](mailto:calidad@empresa-ejemplo.com.ar) 182312 - 2026-10-16 16-10-2026 22-07-2026 Mercado pago 3 y 6 Cuotas Pesos 191261 186401 186401.06 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1232541 2122945 Herrera,Nicolas\n[nicolash831@example.com](mailto:nicolash831@example.com) 183041 - 2026-10-14 14-10-2026 29-09-2026 Mercado pago 3 y 6 Cuotas Pesos 92433 79571 79570.95 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1232542 2122945 Herrera,Nicolas\n[nicolash831@example.com](mailto:nicolash831@example.com) 183041 - 2026-10-14 14-10-2026 29-09-2026 Mercado pago 3 y 6 Cuotas Pesos 92433 84044.7 84044.70 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1236361 2125786 Acosta,Federico\n[federico.acosta@example.com](mailto:federico.acosta@example.com) 182262 - 2026-10-14 14-10-2026 02-10-2026 Mercado pago 3 y 6 Cuotas Pesos 194454 167396 167395.73 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1238886 2127671 Sosa,Gabriel Andres\n[gsosa@empresa-ejemplo.com.ar](mailto:gsosa@empresa-ejemplo.com.ar) 183041 - 2026-10-14 14-10-2026 05-10-2026 Mercado pago 3 y 6 Cuotas Pesos 217489 187225 187225.40 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1243651 2131922 Rios,Florencia\n[rrhh@otra-empresa.com.ar](mailto:rrhh@otra-empresa.com.ar) 185842 - 2026-10-16 16-10-2026 08-10-2026 Mercado pago 3 y 6 Cuotas Pesos 229235 223410 223410.14 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1244508 2132869 vega,Matias\n[matias.vega@example.org](mailto:matias.vega@example.org) 184429 - 2026-10-15 15-10-2026 15-10-2026 Mercado pago 3 y 6 Cuotas Pesos 206224 177528 177527.93 No liquidado Argentina En tesoreria\nEn lote nº 1893\n1244349 2131220 Navarro,Pablo Ezequiel\n[pnavarro89@example.com](mailto:pnavarro89@example.com) 183613 - 2026-08-18 18-08-2026 07-10-2026 Mercado pago Pesos 242000 235851 235850.78 No liquidado Argentina En tesoreria\nEn lote nº 1892\n\nPor favor,\nGRACIAS.\n","archivoLote":"","overrides":null},{"id":"tesoreria-sola","titulo":"Pedido de Tesorería solo (sin ticket del SCI)","texto":"","query":"","tesoreria":"Muchas gracias, agrego estos pagos que también están sin número de recibo:\n1231045 2122075 Ferraro,Camila\ncferraro27@example.com 183887 - 2026-10-01 01-10-2026 25-09-2026 Mercado pago Pesos 80000 77967.2 62373.76 No liquidado Argentina En tesoreria\nEn lote nº 1895\n\n1231164 2122141 Lucia,Benitez\nlu30783@example.com 183855 - 2026-10-07 07-10-2026 26-09-2026 Mercado pago Pesos 52038 51408.3 41126.67 No liquidado Argentina En tesoreria\nEn lote nº 1895\n\n1244617 2132953 quiroga,Tomas\nquirogatomas2@example.com 183613 - 2026-08-18 18-08-2026 15-10-2026 Mercado pago Pesos 725000 706578 706577.75 No liquidado Argentina En tesoreria\nEn lote nº 1895\n1227749 2119961 MEDINA,Ezequiel\nezemed@example.com 186730 - 2026-09-30 30-09-2026 21-09-2026 Mercado pago 3 Cuotas Pesos 110000 100018 80014.00 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1227872 2120017 Domínguez,Ana Paula\nanapdominguez@example.com 184536 - 2026-09-29 29-09-2026 21-09-2026 Mercado pago 3 Cuotas Pesos 300890 297249 237799.38 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1228688 2120341 ROMERO,SOFIA\nromerosofia@example.com 182012 - 2026-10-09 09-10-2026 22-09-2026 Mercado pago 3 Cuotas Pesos 180039 163700 130960.36 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1229045 2120561 Castro,Martin\nmartincastro0912@example.com 182012 - 2026-10-09 09-10-2026 22-09-2026 Mercado pago 3 Cuotas Pesos 180039 163700 130960.36 No liquidado Argentina En tesoreria\nEn lote nº 1894\n\n1229877 2120975 Molina,Paula\np.molina@example.com 182012 - 2026-10-09 09-10-2026 23-09-2026 Mercado pago 3 Cuotas Pesos 180039 177861 142288.42 No liquidado Argentina En tesoreria\nEn lote nº 1894\n1159269 2027515 PAREDES,JOAQUIN\ncalidad@empresa-ejemplo.com.ar 182312 - 2026-10-16 16-10-2026 22-07-2026 Mercado pago 3 y 6 Cuotas Pesos 191261 186401 186401.06 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1232541 2122945 Herrera,Nicolas\nnicolash831@example.com 183041 - 2026-10-14 14-10-2026 29-09-2026 Mercado pago 3 y 6 Cuotas Pesos 92433 79571 79570.95 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1232542 2122945 Herrera,Nicolas\nnicolash831@example.com 183041 - 2026-10-14 14-10-2026 29-09-2026 Mercado pago 3 y 6 Cuotas Pesos 92433 84044.7 84044.70 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1236361 2125786 Acosta,Federico\nfederico.acosta@example.com 182262 - 2026-10-14 14-10-2026 02-10-2026 Mercado pago 3 y 6 Cuotas Pesos 194454 167396 167395.73 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1238886 2127671 Sosa,Gabriel Andres\ngsosa@empresa-ejemplo.com.ar 183041 - 2026-10-14 14-10-2026 05-10-2026 Mercado pago 3 y 6 Cuotas Pesos 217489 187225 187225.40 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1243651 2131922 Rios,Florencia\nrrhh@otra-empresa.com.ar 185842 - 2026-10-16 16-10-2026 08-10-2026 Mercado pago 3 y 6 Cuotas Pesos 229235 223410 223410.14 No liquidado Argentina En tesoreria\nEn lote nº 1893\n\n1244508 2132869 vega,Matias\nmatias.vega@example.org 184429 - 2026-10-15 15-10-2026 15-10-2026 Mercado pago 3 y 6 Cuotas Pesos 206224 177528 177527.93 No liquidado Argentina En tesoreria\nEn lote nº 1893\n1244349 2131220 Navarro,Pablo Ezequiel\npnavarro89@example.com 183613 - 2026-08-18 18-08-2026 07-10-2026 Mercado pago Pesos 242000 235851 235850.78 No liquidado Argentina En tesoreria\nEn lote nº 1892\n\nPor favor,\nGRACIAS.\n","archivoLote":"","overrides":null}];
+// ---- src/config.js ----
+// =============================================================================
+// CONFIGURACIÓN — Resolver PNP
+// -----------------------------------------------------------------------------
+// Este es el único archivo que hace falta tocar para mantener contactos y
+// palabras clave. Después de editarlo, correr `node build.mjs` para regenerar
+// dist/resolver-pnp.html.
+//
+// Fuente: docs/SKILL.md (sección "Contactos (Anexo 2)" e "Identificar el área
+// dueña"). NO poner contraseñas acá: el HTML se reparte.
+// =============================================================================
+
+const CONFIG = {
+  version: '1.1.0',
+
+  // En TODO mail va este alias en CCO.
+  cco: 'soportedeaplicaciones@frba.utn.edu.ar',
+
+  // Link a nuestro ticket en osTicket (se le agrega el ID).
+  urlTicket: 'https://atencion.frba.utn.edu.ar/scp/tickets.php?id=',
+
+  // Días hábiles para el seguimiento cuando se deriva a un área.
+  diasSeguimiento: 5,
+
+  // ---------------------------------------------------------------------------
+  // Áreas dueñas. La clave (EL, POSGRADO, …) es interna; no cambiarla.
+  //   nombre:     cómo se nombra el área en los textos.
+  //   canal:      'ticket' (portal) o 'mail'.
+  //   para / cc:  destinatarios del mail (canal 'mail').
+  //   medio:      cómo se describe el canal en la Descripción Resolución del PNP.
+  // ---------------------------------------------------------------------------
+  areas: {
+    EL: {
+      nombre: 'E-Learning',
+      canal: 'ticket',
+      medio: 'ticket en su portal (Jira)',
+      portal: 'https://fepp.atlassian.net/servicedesk/customer/portal/1',
+      camino: 'No conformidad → Informar un incidente',
+      usuario: 'soportedeaplicaciones@frba.utn.edu.ar',
+      notaAcceso: 'La contraseña está en la doc interna.',
+    },
+    POSGRADO: {
+      nombre: 'Posgrado',
+      canal: 'mail',
+      medio: 'mail',
+      para: ['pagos@posgrado.frba.utn.edu.ar'],
+      alternativo: 'aregaliazummer@frba.utn.edu.ar', // "o directo a"
+    },
+    TSNB: {
+      nombre: 'TUNB / TSNB',
+      canal: 'mail',
+      medio: 'mail',
+      para: ['tsnbutn@yahoo.com.ar', 'tsnb@sceu.frba.utn.edu.ar'],
+    },
+    SCEU: {
+      nombre: 'SCEU',
+      canal: 'mail',
+      medio: 'mail',
+      // En la doc figura como "Demás / Lote SCEU: cc: …". Van los dos en Para.
+      para: ['alexanderlopez@frba.utn.edu.ar', 'acecaloni@frba.utn.edu.ar'],
+    },
+    SEGURIDAD: {
+      nombre: 'Curso de seguridad',
+      canal: 'mail',
+      medio: 'mail',
+      para: ['gisela@frba.utn.edu.ar'],
+    },
+    APM: {
+      nombre: 'APM',
+      canal: 'mail',
+      medio: 'mail',
+      para: ['mrodriguezgiavarini@frba.utn.edu.ar'], // Coordinadora
+      cc: ['poliveto@frba.utn.edu.ar'],               // Encargado
+    },
+    SAE: {
+      nombre: 'SAE Deportes',
+      canal: 'mail',
+      medio: 'mail',
+      para: ['wviscovich@frba.utn.edu.ar'],
+    },
+  },
+
+  // ---------------------------------------------------------------------------
+  // Detección del área, paso 1: nombre del archivo del lote (lo más confiable).
+  // Se evalúan en orden; gana el primero que matchea.
+  // ---------------------------------------------------------------------------
+  archivos: [
+    { area: 'EL', patron: /\.EL\./i },   // FP.<n>.EL.<fecha>…
+    { area: 'SCEU', patron: /SCEU/i },   // MP.SCEU.<fecha>…
+  ],
+
+  // ---------------------------------------------------------------------------
+  // Detección del área, paso 2: palabras clave en Concepto / SubConcepto /
+  // Alumno. Sin distinguir mayúsculas ni tildes; cada palabra matchea al
+  // comienzo de una palabra del texto ("Maestr" matchea "Maestría").
+  // Se evalúan en orden; gana el primero que matchea.
+  // ---------------------------------------------------------------------------
+  palabrasClave: [
+    { area: 'SAE', palabras: ['Equipo de fútbol', 'Deportes'] },
+    { area: 'TSNB', palabras: ['TUNB', 'TSNB'] },
+    { area: 'POSGRADO', palabras: ['Posgrado', 'Maestr', 'Especializ', 'Doctor'] },
+    { area: 'APM', palabras: ['APM'] },
+    { area: 'SEGURIDAD', palabras: ['seguridad'] },
+  ],
+
+  // ---------------------------------------------------------------------------
+  // Mensaje de Tesorería: pagos de Mercado Pago / E-Learning sin número de
+  // recibo en SCI. Si Tesorería cambia el formato, se ajusta acá.
+  // ---------------------------------------------------------------------------
+  tesoreria: {
+    // A quién va dirigida la "Respuesta a Tesorería".
+    contacto: 'Johanna',
+
+    // "En lote nº 1895": número de lote de E-Learning (NO es el ID de lote del
+    // SCI). Aplica a los pagos anteriores, hasta el "En lote" previo.
+    marcaLote: /En\s+(?:el\s+)?lote\s*(?:n\s*[º°o]|nro|n[uú]m(?:ero)?|#)?\.?\s*:?\s*(\d+)/giu,
+
+    // Un pago empieza con dos números (ID de pago, ID de orden) y un nombre
+    // ("Apellido,Nombre", o seguido de un mail).
+    inicioPago: /(?<![\d.,])(\d{6,8})\s+(\d{6,8})\s+(?=\p{L}[^\d@]*?(?:,|\s\S+@))/gu,
+
+    // Saludos de cierre que no son parte del último pago.
+    pie: /\s+(?:Por favor|Muchas gracias|Gracias|Saludos|Atentamente)\b.*$/iu,
+
+    // Columnas de cada pago, en orden. Cada patrón se busca al principio de lo
+    // que queda del pago (los separadores pueden ser espacios, tabs o saltos).
+    //   campo: null → se lee y se descarta. opcional: puede faltar.
+    //   tipo: 'fecha' → DD/MM/AAAA; 'monto' → número.
+    // OJO: las fechas 7-8 se repiten igual en todos los pagos del mismo curso
+    // (y a veces son anteriores a la fecha de pago), así que puede que no sean
+    // la acreditación de MP. No se usan para cruzar.
+    columnas: [
+      { campo: 'idPago', patron: /\d{6,8}/ },
+      { campo: 'idOrden', patron: /\d{6,8}/ },
+      { campo: 'nombre', patron: /.+?(?=\s+(?:\S+@\S+|\d{4,8}\s))/u },
+      { campo: 'email', patron: /[^\s@]+@[^\s@]+\.[^\s@]+/, opcional: true },
+      { campo: 'idCurso', patron: /\d{4,8}/ },
+      { campo: null, patron: /-/, opcional: true },
+      { campo: 'fechaAcreditacion', patron: /\d{4}-\d{1,2}-\d{1,2}/, opcional: true, tipo: 'fecha' },
+      { campo: null, patron: /\d{1,2}[-/]\d{1,2}[-/]\d{4}(?=\s+\d{1,2}[-/]\d{1,2}[-/]\d{4})/, opcional: true },
+      { campo: 'fechaPago', patron: /\d{1,2}[-/]\d{1,2}[-/]\d{4}/, tipo: 'fecha' },
+      { campo: 'entidad', patron: /.+?(?=\s+(?:\d+(?:\s+y\s+\d+)?\s+Cuotas\b|Pesos\b|D[oó]lares\b|USD\b|ARS\b))/iu },
+      { campo: 'planMP', patron: /\d+(?:\s+y\s+\d+)?\s+Cuotas/i, opcional: true },
+      { campo: 'moneda', patron: /Pesos|D[oó]lares|USD|ARS/iu },
+      { campo: 'montoBruto', patron: /\d[\d.,]*/, tipo: 'monto' },
+      { campo: 'montoNeto', patron: /\d[\d.,]*/, tipo: 'monto', opcional: true },
+      { campo: 'montoFacultad', patron: /\d[\d.,]*/, tipo: 'monto', opcional: true },
+      { campo: 'estado', patron: /.+/u, opcional: true },
+    ],
+
+    // Diferencia máxima (en pesos) para considerar que dos montos son iguales.
+    toleranciaMonto: 1,
+  },
+};
+
+// ---- src/parser.js ----
+// Parser: lee el texto pegado del ticket/mail del SCI y la grilla de la query.
+// Todo es tolerante a tabs, espacios, saltos de línea y tildes.
+
+
+
+// ---------------------------------------------------------------------------
+// Utilidades de texto
+// ---------------------------------------------------------------------------
+
+/** Minúsculas y sin tildes, para comparar. */
+function fold(s) {
+  return String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
+/** Colapsa cualquier espacio (tabs, saltos, nbsp) a un espacio simple. */
+function squash(s) {
+  return String(s ?? '').replace(/[   ​]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Saca los ceros a la izquierda (para comparar IDs). */
+function sinCeros(s) {
+  const t = String(s ?? '').trim().replace(/^0+(?=\d)/, '');
+  return t;
+}
+
+/** Caracteres típicos de un nombre con encoding roto (UTF-8 leído como Latin-1). */
+function tieneMojibake(s) {
+  return /Ã|Â|�|â€|Ã³|Ã±|Ã©|Ã¡|Ã­|Ãº/.test(String(s ?? ''));
+}
+
+// ---------------------------------------------------------------------------
+// Números, montos y fechas
+// ---------------------------------------------------------------------------
+
+/**
+ * Convierte "166500", "129550,0000", "166500.00", "166.500", "1.234,50" a número.
+ * Devuelve null si no se puede.
+ */
+function parseNumero(v) {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+  let s = String(v).trim().replace(/[$\s]/g, '');
+  if (!s || /^null$/i.test(s)) return null;
+  const tienePunto = s.includes('.');
+  const tieneComa = s.includes(',');
+  if (tienePunto && tieneComa) {
+    // El último separador es el decimal.
+    if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
+    else s = s.replace(/,/g, '');
+  } else if (tieneComa) {
+    const partes = s.split(',');
+    // "1,234,567" → miles; "129550,0000" → decimal
+    if (partes.length > 2) s = partes.join('');
+    else s = s.replace(',', '.');
+  } else if (tienePunto) {
+    const partes = s.split('.');
+    // "166.500" o "1.234.567" → miles; "166500.00" / "166500.0000" → decimal
+    const esMiles = partes.length > 2 || (partes[1].length === 3 && partes[0].length <= 3);
+    if (esMiles) s = partes.join('');
+  }
+  if (!/^-?\d+(\.\d+)?$/.test(s)) return null;
+  return Number(s);
+}
+
+/** 166500 → "166.500"; 1234.5 → "1.234,50". */
+function formatMonto(v) {
+  const n = typeof v === 'number' ? v : parseNumero(v);
+  if (n === null) return '';
+  const entero = Math.round(n * 100) % 100 === 0;
+  const [ent, dec] = (entero ? Math.round(n).toString() : n.toFixed(2)).split('.');
+  const neg = ent.startsWith('-');
+  const digitos = neg ? ent.slice(1) : ent;
+  const conMiles = digitos.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return (neg ? '-' : '') + conMiles + (dec ? ',' + dec : '');
+}
+
+/** Normaliza una fecha a DD/MM/AAAA. Acepta DD/MM/AAAA, D/M/AA, AAAA-MM-DD (con hora o no). */
+function formatFecha(v) {
+  if (v instanceof Date) {
+    return `${String(v.getDate()).padStart(2, '0')}/${String(v.getMonth() + 1).padStart(2, '0')}/${v.getFullYear()}`;
+  }
+  const s = String(v ?? '').trim();
+  if (!s || /^null$/i.test(s)) return '';
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return `${m[3].padStart(2, '0')}/${m[2].padStart(2, '0')}/${m[1]}`;
+  m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/);
+  if (m) {
+    const anio = m[3].length === 2 ? '20' + m[3] : m[3];
+    return `${m[1].padStart(2, '0')}/${m[2].padStart(2, '0')}/${anio}`;
+  }
+  return s;
+}
+
+/** "21/10/2026" → Date (local). null si no es válida. */
+function parseFecha(s) {
+  const m = String(s ?? '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return null;
+  const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  if (d.getDate() !== Number(m[1]) || d.getMonth() !== Number(m[2]) - 1) return null;
+  return d;
+}
+
+/** Suma días hábiles salteando sábados y domingos. */
+function sumarDiasHabiles(fecha, dias) {
+  const d = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+  let restantes = dias;
+  while (restantes > 0) {
+    d.setDate(d.getDate() + 1);
+    const dia = d.getDay();
+    if (dia !== 0 && dia !== 6) restantes--;
+  }
+  return d;
+}
+
+// ---------------------------------------------------------------------------
+// Tipo de ticket (tabla A)
+// ---------------------------------------------------------------------------
+
+/**
+ * 'notificacion' | 'error_lote' | 'pnp' | 'usuario' | 'vacio'
+ */
+function detectarTipo(texto) {
+  const t = fold(squash(texto));
+  if (!t) return 'vacio';
+  if (/se produjo un error al (generar|procesar) el lote/.test(t) ||
+      /\blote\s*(?:nro\.?\s*:?\s*)?\d+\s+con el siguiente error/.test(t)) {
+    return 'error_lote';
+  }
+  if (/se ha generado un nuevo lote nro/.test(t) && /e-?\s?learning\s+carg/.test(t) && /pendiente/.test(t)) {
+    return 'notificacion';
+  }
+  if (parsearFilasPnp(texto).length > 0 || /pagos? no procesables?/.test(t) ||
+      (/se ha generado un nuevo lote/.test(t) && /codigo de barras/.test(t))) {
+    return 'pnp';
+  }
+  return 'usuario';
+}
+
+// ---------------------------------------------------------------------------
+// Lote
+// ---------------------------------------------------------------------------
+
+/** { raw: '00020457', num: 20457, id8: '00020457' } o null. */
+function extraerLote(texto) {
+  const s = squash(texto);
+  let m = s.match(/\bLote\b\s*(?:Nro\.?|N[º°o]\.?)?\s*:?\s*(\d{2,})/i);
+  if (!m) m = s.match(/Filter_Id=(\d+)/i);
+  if (!m) return null;
+  return loteDesde(m[1]);
+}
+
+function loteDesde(v) {
+  const raw = String(v ?? '').trim();
+  if (!/^\d+$/.test(raw)) return null;
+  const num = Number(raw);
+  return { raw, num, id8: String(num).padStart(8, '0') };
+}
+
+/**
+ * Lote de E-Learning a partir del nombre de archivo del lote:
+ * FP.<n>.EL.<AAAAMMDD>.<loteEL>[_<loteSCI>].txt → loteEL (número). null si no es de E-Learning.
+ */
+function loteElDesdeArchivo(nombre) {
+  const base = String(nombre ?? '').split(/[\\/]+/).pop();
+  const m = base.match(/\.EL\.\d{8}\.(\d+)(?:_\d+)?(?:\.|$)/i);
+  return m ? Number(m[1]) : null;
+}
+
+/** Entidad, archivo y estado si el texto los trae (notificaciones). */
+function extraerInfoLote(texto) {
+  const s = squash(texto);
+  const info = {};
+  let m = s.match(/Entidad Recaudadora\s*:\s*(.+?)(?=\s+(?:Monto Bruto|Comisi|Observaciones|Archivo|Nombre Archivo|Estado|Fecha)\b|$)/i);
+  if (m) info.entidad = m[1].trim();
+  m = s.match(/(?:Nombre Archivo(?:\/Lote)?|Archivo)\s*:\s*(\S+)/i);
+  if (m) {
+    const partes = m[1].split(/[\\/]+/);
+    info.archivo = partes[partes.length - 1];
+    info.rutaArchivo = m[1];
+  }
+  m = s.match(/Estado\s*:\s*([A-Za-zÁÉÍÓÚáéíóú]+)/);
+  if (m) info.estado = m[1].toUpperCase();
+  m = s.match(/Monto Bruto\s*:\s*([\d.,]+)/i);
+  if (m) info.montoBruto = m[1];
+  return info;
+}
+
+/** Texto del error de lote y, si viene, el código de cuota mencionado. */
+function extraerErrorLote(texto) {
+  const s = squash(texto);
+  const m = s.match(/con el siguiente error\s*:?\s*(.*?)(?:\s*Para m[aá]s informaci[oó]n.*)?$/i);
+  const error = m ? m[1].trim() : '';
+  const c = error.match(/Cuota\s*:\s*(\d{6,40})/i);
+  return { error, codigoMencionado: c ? c[1] : '' };
+}
+
+// ---------------------------------------------------------------------------
+// Filas de PNP: Nº / Código de Barras / Error
+// ---------------------------------------------------------------------------
+
+const PREFIJOS_ERROR = /(El monto pagado|No existe una Cuota|La Cuota\s*\()/gi;
+const FILA_GENERICA = /(?<!\d)(\d{8})\s+(\d{6,40})\s+(?=[^\d\s])/g;
+const PIE = /\s+(?:Para m[aá]s informaci[oó]n|Saludos|Atentamente|Este (?:es un )?(?:mensaje|correo))\b.*$/i;
+
+/**
+ * Devuelve [{ nro, codigo, error }]. Estrategia: ubicar cada error conocido y
+ * retroceder para tomar Nº y código; para errores desconocidos, usar el patrón
+ * "8 dígitos + 6-40 dígitos + texto" como separador de filas.
+ */
+function parsearFilasPnp(texto) {
+  const s = squash(texto);
+  const inicios = new Map(); // posición del Nº → { nro, codigo, inicioError }
+
+  for (const m of s.matchAll(PREFIJOS_ERROR)) {
+    const antes = s.slice(0, m.index);
+    const mm = antes.match(/(?<!\d)(\d{1,12})\s+(\d{1,40})\s*$/);
+    if (mm) inicios.set(mm.index, { nro: mm[1], codigo: mm[2], inicioError: m.index });
+  }
+  for (const m of s.matchAll(FILA_GENERICA)) {
+    if (!inicios.has(m.index)) {
+      inicios.set(m.index, { nro: m[1], codigo: m[2], inicioError: m.index + m[0].length });
+    }
+  }
+
+  const posiciones = [...inicios.keys()].sort((a, b) => a - b);
+  const filas = [];
+  posiciones.forEach((pos, i) => {
+    const f = inicios.get(pos);
+    const fin = i + 1 < posiciones.length ? posiciones[i + 1] : s.length;
+    if (f.inicioError >= fin) return;
+    let error = s.slice(f.inicioError, fin).trim();
+    if (i === posiciones.length - 1) error = error.replace(PIE, '').trim();
+    filas.push({ nro: f.nro, codigo: f.codigo, error });
+  });
+  return filas;
+}
+
+/** Datos que se pueden sacar del texto del error. */
+function extraerDatosError(error) {
+  const e = String(error ?? '');
+  const d = { tipo: 'B4' };
+  let m;
+  if ((m = e.match(/El monto pagado\s*\(\s*([\d.,]+)\s*\)\s*no coincide con el monto de la Cuota\s*\(\s*([\d.,]+)\s*\)(?:\s*ni el monto de pronto pago\s*\(\s*([\d.,]+)\s*\))?/i))) {
+    d.tipo = 'B1';
+    d.montoPagado = parseNumero(m[1]);
+    d.montoCuota = parseNumero(m[2]);
+    d.montoProntoPago = m[3] ? parseNumero(m[3]) : null;
+  } else if ((m = e.match(/No existe una Cuota para el C\S{0,3}digo\s*:?\s*(\d+)/i))) {
+    d.tipo = 'B2';
+    d.codigoError = m[1];
+  } else if ((m = e.match(/La Cuota\s*\(\s*(\d+)\s*\)\s*ya se encuentra asociada al Recibo\s*(\d+\/\d{4})(?:\s*\(\s*Id\s*=\s*(\d+)\s*\))?/i))) {
+    d.tipo = 'B3';
+    d.cuotaId = m[1];
+    d.recibo = m[2];
+    d.reciboId = m[3] || '';
+  }
+  m = e.match(/Alumno\s*:\s*(.*?)\s*(?=Sub Concepto Ingreso\s*:|$)/i);
+  if (m && m[1]) d.alumno = m[1].replace(/\s+,/g, ',').trim();
+  m = e.match(/Sub Concepto Ingreso\s*:\s*(.*?)\s*$/i);
+  if (m && m[1]) d.subconcepto = m[1].trim();
+  // Lo que va en la línea "Error:" del ticket: sin la cola " Alumno: … Sub Concepto Ingreso: …".
+  d.errorCorto = e.replace(/\s+Alumno\s*:.*$/i, '').trim();
+  return d;
+}
+
+/** 26283 (AADDD) → "10/10/2026"; null si no es una fecha juliana válida. */
+function fechaJuliana(aaddd) {
+  const anio = 2000 + Number(aaddd.slice(0, 2));
+  const dia = Number(aaddd.slice(2));
+  if (dia < 1 || dia > 366) return null;
+  const d = new Date(anio, 0, dia);
+  return d.getFullYear() === anio ? formatFecha(d) : null;
+}
+
+/**
+ * Lo que trae adentro un código de barras de 40 dígitos (0937022…): un ID y
+ * dos fechas julianas AADDD. Es informativo: no se sabe con certeza qué es el ID.
+ * { id, fechas: ['DD/MM/AAAA', …] } o null.
+ */
+function desglosarCodigoBarras(codigo) {
+  const c = String(codigo ?? '').trim();
+  if (!/^0937022\d{33}$/.test(c)) return null;
+  const fechas = [fechaJuliana(c.slice(14, 19)), fechaJuliana(c.slice(34, 39))].filter(Boolean);
+  return { id: sinCeros(c.slice(19, 28)), fechas };
+}
+
+// ---------------------------------------------------------------------------
+// Resultado de la query (grilla de SSMS)
+// ---------------------------------------------------------------------------
+
+const COLUMNAS_QUERY = [
+  'PNP_Id', 'Lote_Id', 'EntidadRecaudadora', 'NombreArchivo', 'Error', 'CodigoBarras',
+  'FechaPago', 'MontoPagado', 'MontoCuota', 'NombreInscripto', 'DNI', 'ConceptoIngreso',
+  'SubConceptoIngreso', 'PlanPago',
+];
+
+function partirLinea(linea, sep) {
+  if (sep === '\t') return linea.split('\t');
+  const campos = [];
+  let actual = '';
+  let comillas = false;
+  for (let i = 0; i < linea.length; i++) {
+    const c = linea[i];
+    if (comillas) {
+      if (c === '"' && linea[i + 1] === '"') { actual += '"'; i++; }
+      else if (c === '"') comillas = false;
+      else actual += c;
+    } else if (c === '"' && actual.trim() === '') {
+      comillas = true; actual = '';
+    } else if (c === sep) {
+      campos.push(actual); actual = '';
+    } else {
+      actual += c;
+    }
+  }
+  campos.push(actual);
+  return campos;
+}
+
+/** Devuelve filas con las claves de COLUMNAS_QUERY. NULL → ''. */
+function parsearQuery(texto) {
+  // Las líneas que empiezan con "--" son comentarios (como en SQL).
+  const lineas = String(texto ?? '').split(/\r?\n/).filter((l) => l.trim() && !/^\s*--/.test(l));
+  if (!lineas.length) return [];
+  const primera = lineas[0];
+  const sep = primera.includes('\t') ? '\t' : primera.includes(';') ? ';' : ',';
+
+  const porNombre = new Map(COLUMNAS_QUERY.map((c) => [fold(c).replace(/[^a-z]/g, ''), c]));
+  const cab = partirLinea(primera, sep).map((c) => fold(c).replace(/[^a-z]/g, ''));
+  let columnas;
+  let datos = lineas;
+  if (cab.some((c) => porNombre.has(c))) {
+    columnas = cab.map((c) => porNombre.get(c) || null);
+    datos = lineas.slice(1);
+  } else {
+    columnas = COLUMNAS_QUERY;
+  }
+
+  return datos.map((l) => {
+    const valores = partirLinea(l, sep);
+    const fila = {};
+    COLUMNAS_QUERY.forEach((c) => { fila[c] = ''; });
+    columnas.forEach((c, i) => {
+      if (!c) return;
+      const v = (valores[i] ?? '').trim();
+      fila[c] = /^null$/i.test(v) ? '' : v;
+    });
+    return fila;
+  }).filter((f) => f.PNP_Id || f.CodigoBarras || f.Error);
+}
+
+// ---------------------------------------------------------------------------
+// Ticket de usuario: pistas para la búsqueda
+// ---------------------------------------------------------------------------
+
+function extraerPistasUsuario(texto) {
+  const s = squash(texto);
+  const pistas = {};
+  let m = s.match(/\bDNI\s*:?\s*(\d{1,2}\.?\d{3}\.?\d{3})\b/i) || s.match(/(?<![\d.])(\d{7,8})(?![\d.])/);
+  if (m) pistas.dni = m[1].replace(/\./g, '');
+  m = s.match(/\b(\d{1,2}\/\d{1,2}\/\d{2,4})\b/);
+  if (m) pistas.fecha = formatFecha(m[1]);
+  m = s.match(/\$\s*([\d.,]+)/);
+  if (m) {
+    const n = parseNumero(m[1]);
+    if (n !== null) pistas.monto = n;
+  }
+  return pistas;
+}
+
+// ---------------------------------------------------------------------------
+// Mensaje de Tesorería (pagos sin número de recibo)
+// ---------------------------------------------------------------------------
+
+/** Sin tildes, minúsculas y tokens ordenados: "Lucia,Benitez" = "Benitez, Lucia". */
+function normalizarNombre(nombre) {
+  return fold(nombre).split(/[^a-z0-9ñ]+/).filter(Boolean).sort().join(' ');
+}
+
+/** "Herrera,Nicolas" → "Herrera, Nicolas" (no cambia el orden ni las mayúsculas). */
+function formatNombreTesoreria(nombre) {
+  return squash(nombre).replace(/\s*,\s*/g, ', ');
+}
+
+/** Quita el formato de mail de markdown u Outlook: [x](mailto:x), x<mailto:x>, mailto:x. */
+function limpiarMails(texto) {
+  return String(texto ?? '')
+    .replace(/\[([^\]\s]+@[^\]\s]+)\]\(mailto:[^)]*\)/gi, '$1')
+    .replace(/\s*<mailto:[^>]*>/gi, '')
+    .replace(/mailto:/gi, '');
+}
+
+const conFlags = (re, flags) => new RegExp(re.source, flags);
+
+/**
+ * Lee el mail de Tesorería. Devuelve un pago por registro:
+ * { idPago, idOrden, nombre, nombreNormalizado, email, idCurso, fechaAcreditacion,
+ *   fechaPago, entidad, planMP, moneda, montoBruto, montoNeto, montoFacultad,
+ *   estado, loteEl, crudo, aviso? }
+ * Si un pago no se puede leer completo se devuelve igual, con `aviso`.
+ */
+function parsearTesoreria(texto) {
+  const cfg = CONFIG.tesoreria;
+  const s = squash(limpiarMails(texto));
+  if (!s) return [];
+
+  const marcas = [...s.matchAll(conFlags(cfg.marcaLote, 'giu'))]
+    .map((m) => ({ inicio: m.index, fin: m.index + m[0].length, lote: Number(m[1]) }));
+  const dentroDeMarca = (i) => marcas.some((m) => i >= m.inicio && i < m.fin);
+  const inicios = [...s.matchAll(conFlags(cfg.inicioPago, 'gu'))]
+    .map((m) => m.index)
+    .filter((i) => !dentroDeMarca(i));
+
+  return inicios.map((inicio, k) => {
+    const sigPago = k + 1 < inicios.length ? inicios[k + 1] : s.length;
+    const marca = marcas.find((m) => m.inicio > inicio);
+    const fin = Math.min(sigPago, marca ? marca.inicio : s.length);
+    let crudo = s.slice(inicio, fin).trim();
+    if (!marca || marca.inicio > sigPago || fin === s.length) crudo = crudo.replace(cfg.pie, '').trim();
+
+    const pago = {
+      idPago: '', idOrden: '', nombre: '', nombreNormalizado: '', email: '', idCurso: '',
+      fechaAcreditacion: '', fechaPago: '', entidad: '', planMP: '', moneda: '',
+      montoBruto: null, montoNeto: null, montoFacultad: null, estado: '',
+      loteEl: marca && marca.inicio >= fin ? marca.lote : null,
+      crudo,
+    };
+    const faltan = [];
+    let resto = crudo;
+    for (const col of cfg.columnas) {
+      const m = resto.match(new RegExp(`^\\s*(?:${col.patron.source})`, col.patron.flags.replace(/[gy]/g, '')));
+      if (!m) {
+        if (col.opcional) continue;
+        faltan.push(col.campo);
+        break;
+      }
+      resto = resto.slice(m[0].length);
+      if (!col.campo) continue;
+      const v = m[0].trim();
+      if (col.tipo === 'fecha') pago[col.campo] = formatFecha(v);
+      else if (col.tipo === 'monto') pago[col.campo] = parseNumero(v);
+      else pago[col.campo] = v;
+    }
+    pago.nombre = formatNombreTesoreria(pago.nombre);
+    pago.nombreNormalizado = normalizarNombre(pago.nombre);
+    if (/^mercado\s*pago$/i.test(pago.entidad)) pago.entidad = 'Mercado Pago';
+    const avisos = [];
+    if (faltan.length) avisos.push(`no pude leer ${faltan.join(', ')} (ni lo que sigue)`);
+    if (pago.loteEl === null) avisos.push('no tiene "En lote nº" después');
+    if (avisos.length) pago.aviso = `Pago ${pago.idPago || '?'}: ${avisos.join('; ')}.`;
+    return pago;
+  });
+}
+
+// ---- src/classifier.js ----
+// Clasificador: arma el modelo completo a partir de las entradas.
+// Tabla A (tipo de ticket), tabla B (error de cada PNP), área dueña,
+// decisiones de SCI que responde el humano y datos faltantes.
+
+
+
+
+// ---------------------------------------------------------------------------
+// Tabla B
+// ---------------------------------------------------------------------------
+
+const CASOS = {
+  B1: 'Monto no coincide',
+  B2: 'No existe la cuota',
+  B3: 'Cuota ya impactada',
+  B4: 'Error sin procedimiento',
+};
+
+/** { tipo: 'B1'|'B2'|'B3'|'B4', sub?: 'corto'|'largo'|'ceros', datos } */
+function clasificarError(error, codigo = '') {
+  const datos = extraerDatosError(error);
+  const r = { tipo: datos.tipo, datos };
+  if (datos.tipo === 'B2') {
+    const x = datos.codigoError || String(codigo ?? '');
+    if (/^0+$/.test(x)) r.sub = 'ceros';
+    else if (x.length <= 10) r.sub = 'corto';
+    else r.sub = 'largo';
+  }
+  return r;
+}
+
+// ---------------------------------------------------------------------------
+// Área dueña
+// ---------------------------------------------------------------------------
+
+function escaparRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** { key, fuente: 'manual'|'archivo'|'palabras'|null, detalle } — key null = indeterminado. */
+function detectarArea({ archivo = '', concepto = '', subconcepto = '', alumno = '' } = {}) {
+  for (const regla of CONFIG.archivos) {
+    if (archivo && regla.patron.test(archivo)) {
+      return { key: regla.area, fuente: 'archivo', detalle: `archivo ${archivo}` };
+    }
+  }
+  const texto = fold([concepto, subconcepto, alumno].filter(Boolean).join(' | '));
+  for (const regla of CONFIG.palabrasClave) {
+    for (const p of regla.palabras) {
+      if (new RegExp('(^|[^a-z0-9])' + escaparRegex(fold(p))).test(texto)) {
+        return { key: regla.area, fuente: 'palabras', detalle: `"${p}" en concepto/alumno` };
+      }
+    }
+  }
+  return { key: null, fuente: null, detalle: '' };
+}
+
+// ---------------------------------------------------------------------------
+// Decisiones de SCI (las contesta el humano)
+// ---------------------------------------------------------------------------
+
+const PREGUNTAS = {
+  B1: {
+    texto: '¿El monto pagado coincide con alguna otra cuota del plan?',
+    opciones: [
+      ['pendiente', 'Todavía no lo revisé'],
+      ['si', 'Sí → cobro manual'],
+      ['no', 'No → derivar al área'],
+    ],
+  },
+  B2: {
+    texto: '¿Aparece la cuota buscando por Cod. Barras en SCI?',
+    opciones: [
+      ['pendiente', 'Todavía no lo revisé'],
+      ['si', 'Sí → cobro manual'],
+      ['no', 'No → derivar al área'],
+    ],
+  },
+  B3: {
+    texto: '¿Qué ves en la inscripción? (buscar por Cobros → nombre del alumno → inscripción con ese SubConcepto)',
+    opciones: [
+      ['pendiente', 'Todavía no lo revisé'],
+      ['a', 'Hay cuota impaga siguiente con el mismo monto y sin anteriores impagas → cobro manual'],
+      ['b', 'Hay cuotas anteriores sin pagar → mail al coordinador'],
+      ['c', 'No quedan cuotas disponibles → mail al coordinador (reembolso / otro curso)'],
+      ['d', 'El monto no coincide con ninguna cuota → igual que B1'],
+    ],
+  },
+};
+
+/** La pregunta que corresponde a este PNP, o null. */
+function preguntaPara(pnp) {
+  if (pnp.tipo === 'B1') return PREGUNTAS.B1;
+  if (pnp.tipo === 'B2' && pnp.sub === 'largo') return PREGUNTAS.B2;
+  if (pnp.tipo === 'B3') return PREGUNTAS.B3;
+  return null;
+}
+
+/**
+ * Acción resultante:
+ *   { tipo: 'cobro_manual' }
+ *   { tipo: 'derivar', motivo: 'montos'|'cuota_inexistente'|'cuotas_anteriores'|'sin_cuotas'|'b3_pendiente', borrador }
+ *   { tipo: 'irresoluble' } | { tipo: 'registro' } | { tipo: 'soporte' }
+ */
+function resolverAccion(pnp, decision = 'pendiente') {
+  const borrador = decision === 'pendiente';
+  switch (pnp.tipo) {
+    case 'B1':
+      if (decision === 'si') return { tipo: 'cobro_manual' };
+      return { tipo: 'derivar', motivo: 'montos', borrador };
+    case 'B2':
+      if (pnp.sub === 'ceros') return { tipo: 'registro' };
+      if (pnp.sub === 'corto') return { tipo: 'irresoluble' };
+      if (decision === 'si') return { tipo: 'cobro_manual' };
+      return { tipo: 'derivar', motivo: 'cuota_inexistente', borrador };
+    case 'B3':
+      if (decision === 'a') return { tipo: 'cobro_manual' };
+      if (decision === 'b') return { tipo: 'derivar', motivo: 'cuotas_anteriores', borrador: false };
+      if (decision === 'c') return { tipo: 'derivar', motivo: 'sin_cuotas', borrador: false };
+      if (decision === 'd') return { tipo: 'derivar', motivo: 'montos', borrador: false };
+      return { tipo: 'derivar', motivo: 'b3_pendiente', borrador: true };
+    default:
+      return { tipo: 'soporte' };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Errores de lote
+// ---------------------------------------------------------------------------
+
+const ERRORES_LOTE = [
+  {
+    id: 'duplicados',
+    patron: /mas de un registro con el mismo/,
+    titulo: 'Registros duplicados (mismo id/código de barras)',
+    causa: 'Pagaron la misma cuota 2 veces.',
+    pasos: [
+      'Descargar el archivo (Cobros externos → Carpetas, o SysGestión si es SCEU).',
+      'Detectar los duplicados (pegá el contenido del archivo abajo, o: awk \'{print substr($0, length($0)-39)}\' entrada.txt | sort | uniq -d).',
+      'Pocos registros: cobrar todos a mano.',
+      'Muchos: quitar/corregir el duplicado, ajustar total y cantidad en la última línea y subirlo a Entrada con el MISMO nombre que en SCI-Lotes. Se procesa al día siguiente hábil (en TST: Forzar proceso).',
+      'Los duplicados se resuelven después como PNP.',
+    ],
+  },
+  {
+    id: 'object_reference',
+    patron: /object reference not set/,
+    titulo: 'Object reference not set to an instance of an object',
+    causa: 'Casi siempre es el formato del archivo.',
+    pasos: [
+      'Descargar el archivo del lote.',
+      'Compararlo con el formato de la entidad y con otros lotes OK de la misma entidad (ojo con caracteres invisibles \\n, \\r).',
+      'Corregirlo y resubirlo.',
+    ],
+  },
+  {
+    id: 'cantidad_importes',
+    patron: /cantidad de comprobantes procesados no coincide|importes del lote difieren/,
+    titulo: 'No coinciden la cantidad de comprobantes o los importes',
+    causa: 'La línea de totales no coincide con el detalle.',
+    pasos: [
+      'Revisar cantidad e importe de la línea de totales contra el detalle.',
+      'Corregir y resubir.',
+    ],
+  },
+  {
+    id: 'periodo_cerrado',
+    patron: /periodo cerrado/,
+    titulo: 'La fecha pertenece a un período cerrado',
+    causa: 'El período contable de la fecha de pago está cerrado.',
+    pasos: [
+      'Hablar ANTES con Presupuesto.',
+      'Abrir el período en SysAdmin (Archivo → Tablas generales → Períodos).',
+      'Mover el archivo de Error a Entrada, renombrado.',
+    ],
+  },
+  {
+    id: 'cuotas_pagas',
+    patron: /existen cuotas pagas|no presenta deuda/,
+    titulo: 'Existen cuotas pagas / La inscripción no presenta deuda',
+    causa: 'Choque "Pago completo" vs "Cuota".',
+    pasos: [
+      'Cambiar a Ajuste el tipo de la cuota paga.',
+      'Renombrar y resubir el archivo.',
+    ],
+  },
+  {
+    id: 'sin_contenido',
+    patron: /archivo sin contenido/,
+    titulo: 'Archivo sin contenido',
+    causa: 'Problema de la entidad recaudadora.',
+    pasos: ['Contactar a la entidad recaudadora.'],
+  },
+];
+
+function clasificarErrorLote(error) {
+  const t = fold(error);
+  return ERRORES_LOTE.find((e) => e.patron.test(t)) || {
+    id: 'otro',
+    titulo: 'Error de lote sin procedimiento documentado',
+    causa: 'No hay procedimiento documentado para este error.',
+    pasos: ['Revisar el archivo del lote y consultarlo con el resto de Soporte de Aplicaciones. No inventar procedimientos.'],
+  };
+}
+
+/** Equivalente a: awk '{print substr($0, length($0)-39)}' | sort | uniq -d */
+function detectarDuplicados(contenido) {
+  const cuenta = new Map();
+  String(contenido ?? '').split(/\r?\n/).forEach((l) => {
+    const linea = l.replace(/\r/g, '');
+    if (!linea.trim()) return;
+    const cod = linea.length > 40 ? linea.slice(-40) : linea;
+    cuenta.set(cod, (cuenta.get(cod) || 0) + 1);
+  });
+  return [...cuenta.entries()].filter(([, n]) => n > 1).map(([c]) => c).sort();
+}
+
+// ---------------------------------------------------------------------------
+// Datos faltantes
+// ---------------------------------------------------------------------------
+
+const ETIQUETAS = {
+  fechaPago: 'Fecha de pago',
+  montoPagado: 'Monto pagado',
+  nombre: 'Nombre inscripto',
+  dni: 'Número de documento',
+  concepto: 'Concepto Ingreso',
+  subconcepto: 'SubConcepto Ingreso',
+  planPago: 'Plan Pago',
+  archivo: 'Nombre de archivo',
+  entidad: 'Entidad Recaudadora',
+};
+
+function camposNecesarios(pnp) {
+  const a = pnp.accion;
+  if (a.tipo === 'cobro_manual') return ['fechaPago', 'montoPagado'];
+  if (a.tipo !== 'derivar') return [];
+  if (a.motivo === 'cuota_inexistente') return ['fechaPago', 'montoPagado'];
+  const c = ['fechaPago', 'montoPagado', 'nombre'];
+  if (pnp.area.key && pnp.area.key !== 'EL') c.push('dni');
+  c.push('concepto', 'subconcepto', 'planPago');
+  return c;
+}
+
+function vacio(v) {
+  return v === null || v === undefined || String(v).trim() === '';
+}
+
+// ---------------------------------------------------------------------------
+// Cruce con el mensaje de Tesorería
+// ---------------------------------------------------------------------------
+
+// Puntaje de cada señal. Confianza: alta ≥ 6, media ≥ 4, baja ≥ 3.
+const PESOS = {
+  lote: 3, monto: 3, suma: 3, fecha: 2, fechaCerca: 1, nombre: 3, nombreParecido: 2,
+  cuota: 1, idCodigo: 4, fechaDistinta: -2, nombreDistinto: -3,
+};
+const UMBRAL = { alta: 6, media: 4, baja: 3 };
+
+const CONFIANZA_ORDEN = { alta: 3, media: 2, baja: 1 };
+
+function montosIguales(a, b) {
+  return a !== null && a !== undefined && b !== null && b !== undefined &&
+    Math.abs(a - b) <= CONFIG.tesoreria.toleranciaMonto;
+}
+
+function redondear(n) {
+  return Math.round(n * 100) / 100;
+}
+
+function diasEntre(a, b) {
+  const da = parseFecha(a);
+  const db = parseFecha(b);
+  if (!da || !db) return null;
+  return Math.round(Math.abs(da - db) / 86400000);
+}
+
+/** 'igual' | 'parecido' | 'distinto' | null (sin datos o sin señal clara). Recibe nombres normalizados. */
+function compararNombres(a, b) {
+  if (!a || !b) return null;
+  if (a === b) return 'igual';
+  const ta = new Set(a.split(' '));
+  const tb = b.split(' ');
+  const comunes = tb.filter((t) => ta.has(t)).length;
+  if (comunes >= 2 && comunes === Math.min(ta.size, tb.length)) return 'parecido';
+  if (comunes === 0) return 'distinto';
+  return null;
+}
+
+/**
+ * Pagos de una misma orden (o mismo mail) dentro del mismo lote EL, que en el
+ * SCI pueden haber llegado como un único pago por la suma.
+ * [{ pagos, monto, loteEl, por: 'orden 2122945' | 'mail x@y' }]
+ */
+function gruposSuma(pagos) {
+  const grupos = new Map();
+  const agregar = (clave, por, p) => {
+    if (!grupos.has(clave)) grupos.set(clave, { pagos: [], por, loteEl: p.loteEl });
+    grupos.get(clave).pagos.push(p);
+  };
+  for (const p of pagos) {
+    if (p.montoBruto === null) continue;
+    const lote = p.loteEl ?? 'sin-lote';
+    if (p.idOrden) agregar(`${lote}|orden|${p.idOrden}`, `orden ${p.idOrden}`, p);
+    if (p.email) agregar(`${lote}|mail|${p.email.toLowerCase()}`, `mail ${p.email}`, p);
+  }
+  const vistos = new Set();
+  const res = [];
+  for (const g of grupos.values()) {
+    if (g.pagos.length < 2) continue;
+    const firma = g.pagos.map((p) => p.idPago).sort().join(',');
+    if (vistos.has(firma)) continue;
+    vistos.add(firma);
+    res.push({ ...g, monto: redondear(g.pagos.reduce((t, p) => t + p.montoBruto, 0)) });
+  }
+  return res;
+}
+
+/** "184.866 = 2 × 92.433" o "150.000 = 100.000 + 50.000". */
+function textoSuma(monto, pagos) {
+  const iguales = pagos.every((p) => montosIguales(p.montoBruto, pagos[0].montoBruto));
+  const detalle = iguales
+    ? `${pagos.length} × ${formatMonto(pagos[0].montoBruto)}`
+    : pagos.map((p) => formatMonto(p.montoBruto)).join(' + ');
+  return `${formatMonto(monto)} = ${detalle}`;
+}
+
+function nombresPnp(p) {
+  const n = [];
+  if (p.fuentes.nombre && p.fuentes.nombre !== 'tesoreria' && p.campos.nombre) n.push(p.campos.nombre);
+  if (p.datos.alumno) n.push(p.datos.alumno);
+  return n;
+}
+
+/** Puntaje de un PNP contra una opción (un pago o una suma de pagos). null = no es candidato. */
+function puntuar(p, L, op) {
+  const razones = [];
+  let puntaje = 0;
+  let evidencia = false;
+  const sumar = (k, texto) => { puntaje += PESOS[k]; if (texto) razones.push(texto); };
+
+  const loteP = L && L.loteEl !== null && L.loteEl !== undefined ? L.loteEl : null;
+  if (loteP !== null && op.loteEl !== null) {
+    if (loteP !== op.loteEl) return null;
+    sumar('lote', `mismo lote EL ${op.loteEl}`);
+  }
+
+  const monto = p.campos.montoPagado;
+  if (op.suma) {
+    if (!montosIguales(monto, op.monto)) return null;
+    sumar('suma', `monto ${textoSuma(op.monto, op.pagos)} (${op.por})`);
+    evidencia = true;
+  } else if (montosIguales(monto, op.monto)) {
+    sumar('monto', `monto ${formatMonto(op.monto)} coincide`);
+    evidencia = true;
+  }
+
+  const cuota = p.campos.montoCuota;
+  if (cuota !== null && cuota !== undefined && op.pagos.every((x) => montosIguales(x.montoBruto, cuota))) {
+    sumar('cuota', `monto de la cuota (${formatMonto(cuota)}) = monto del pago`);
+  }
+
+  const fechas = [...new Set(op.pagos.map((x) => x.fechaPago).filter(Boolean))];
+  if (p.campos.fechaPago && fechas.length === 1) {
+    const d = diasEntre(p.campos.fechaPago, fechas[0]);
+    if (d === 0) sumar('fecha', `misma fecha de pago (${fechas[0]})`);
+    else if (d === 1) sumar('fechaCerca', `fecha de pago a 1 día (${p.campos.fechaPago} / ${fechas[0]})`);
+    else if (d !== null) sumar('fechaDistinta', `fecha de pago distinta (${p.campos.fechaPago} / ${fechas[0]})`);
+  }
+
+  let mejor = null;
+  for (const n of nombresPnp(p)) {
+    const r = compararNombres(normalizarNombre(n), op.pagos[0].nombreNormalizado);
+    if (r === 'igual' || (r === 'parecido' && mejor !== 'igual') || (r === 'distinto' && !mejor)) mejor = r;
+  }
+  if (mejor === 'igual') { sumar('nombre', 'nombre coincide'); evidencia = true; }
+  else if (mejor === 'parecido') { sumar('nombreParecido', 'nombre parecido'); evidencia = true; }
+  else if (mejor === 'distinto') sumar('nombreDistinto', `nombre distinto (SCI: ${nombresPnp(p)[0]})`);
+
+  const cod = desglosarCodigoBarras(p.campos.codigoBarras || p.codigo);
+  if (cod && op.pagos.some((x) => x.idPago === cod.id || x.idOrden === cod.id)) {
+    sumar('idCodigo', `el ID del código de barras (${cod.id}) es el del pago`);
+    evidencia = true;
+  }
+
+  if (!evidencia || puntaje < UMBRAL.baja) return null;
+  const confianza = puntaje >= UMBRAL.alta ? 'alta' : puntaje >= UMBRAL.media ? 'media' : 'baja';
+  return { pnp: p, pagos: op.pagos, suma: !!op.suma, monto: op.monto, loteEl: op.loteEl, por: op.por || '', puntaje, confianza, razones };
+}
+
+/**
+ * Cruza los PNP con los pagos del mensaje de Tesorería.
+ *   pnps: modelo.pnps (con campos), pagos: parsearTesoreria(), lotes: modelo.lotes (con loteEl).
+ * Devuelve {
+ *   porPnp: { [idKey]: { estado: 'cruzado', pagos, confianza, razones, suma, … } | { estado: 'ambiguo', candidatos } },
+ *   filas: [{ pago, estado: 'cruzado'|'ambiguo'|'sin_pnp'|'sin_datos', pnp?, pnps?, confianza?, razones? }],
+ *   sugerencias: [{ loteKey, lote, loteEl, pnpId }], sinDatos: [PNP] }
+ * Asignación uno a uno (salvo sumas); si hay empate no se elige: queda ambiguo.
+ */
+function cruzarTesoreria(pnps, pagos, lotes = []) {
+  const loteDe = (p) => lotes.find((L) => L.key === p.loteKey) || null;
+  const opciones = [
+    ...pagos.filter((x) => x.montoBruto !== null || x.nombreNormalizado)
+      .map((x) => ({ pagos: [x], monto: x.montoBruto, loteEl: x.loteEl })),
+    ...gruposSuma(pagos).map((g) => ({ ...g, suma: true })),
+  ];
+
+  const usados = new Map(); // pago → 'cruzado' | 'ambiguo'
+  const porPnp = {};
+
+  // 1. Los que el usuario eligió a mano ("Usar estos datos").
+  for (const p of pnps) {
+    const ids = p.pagosElegidos || [];
+    if (!ids.length) continue;
+    const elegidos = ids.map((id) => pagos.find((x) => x.idPago === id)).filter(Boolean);
+    if (elegidos.length !== ids.length || elegidos.some((x) => usados.has(x))) continue;
+    const loteEl = elegidos.every((x) => x.loteEl === elegidos[0].loteEl) ? elegidos[0].loteEl : null;
+    const monto = redondear(elegidos.reduce((t, x) => t + (x.montoBruto || 0), 0));
+    const calc = puntuar(p, loteDe(p), { pagos: elegidos, monto, loteEl, suma: elegidos.length > 1, por: 'elegidos a mano' });
+    porPnp[p.idKey] = {
+      estado: 'cruzado', pnp: p, pagos: elegidos, suma: elegidos.length > 1, monto, loteEl,
+      confianza: 'alta', manual: true, razones: ['elegido a mano', ...(calc ? calc.razones : [])],
+    };
+    elegidos.forEach((x) => usados.set(x, 'cruzado'));
+  }
+
+  // 2. Puntaje de todos los pares y asignación de mayor a menor.
+  const pares = [];
+  for (const p of pnps) {
+    if (porPnp[p.idKey]) continue;
+    for (const op of opciones) {
+      const r = puntuar(p, loteDe(p), op);
+      if (r) pares.push(r);
+    }
+  }
+  pares.sort((a, b) => b.puntaje - a.puntaje);
+  const libre = (par) => !par.pagos.some((x) => usados.has(x));
+  const mismosPagos = (a, b) => a.pagos.length === b.pagos.length && a.pagos.every((x) => b.pagos.includes(x));
+
+  for (const par of pares) {
+    if (porPnp[par.pnp.idKey] || !libre(par)) continue;
+    const rivales = pares.filter((o) => o !== par && o.puntaje === par.puntaje && libre(o) && !porPnp[o.pnp.idKey] && (
+      (o.pnp === par.pnp && !mismosPagos(o, par)) ||
+      (o.pnp !== par.pnp && o.pagos.some((x) => par.pagos.includes(x)))));
+    if (!rivales.length) {
+      porPnp[par.pnp.idKey] = { estado: 'cruzado', ...par };
+      par.pagos.forEach((x) => usados.set(x, 'cruzado'));
+      continue;
+    }
+    const empate = [par, ...rivales];
+    for (const p of new Set(empate.map((e) => e.pnp))) {
+      porPnp[p.idKey] = { estado: 'ambiguo', pnp: p, candidatos: empate.filter((e) => e.pnp === p) };
+    }
+    empate.forEach((e) => e.pagos.forEach((x) => usados.set(x, 'ambiguo')));
+  }
+
+  // 3. Lotes SCI sin archivo: sugerir el lote EL si un PNP cruzó alto por nombre.
+  const sugerencias = [];
+  for (const L of lotes) {
+    if (L.loteEl !== null && L.loteEl !== undefined) continue;
+    const candidatos = new Map();
+    for (const p of L.pnps || pnps.filter((x) => x.loteKey === L.key)) {
+      const r = porPnp[p.idKey];
+      if (!r || r.estado !== 'cruzado' || r.confianza !== 'alta' || r.loteEl === null) continue;
+      if (!r.razones.includes('nombre coincide')) continue;
+      if (!candidatos.has(r.loteEl)) candidatos.set(r.loteEl, p);
+    }
+    if (candidatos.size === 1) {
+      const [[loteEl, p]] = [...candidatos];
+      sugerencias.push({ loteKey: L.key, lote: L.lote, loteEl, pnpId: p.id });
+    }
+  }
+
+  // 4. PNP que no se pueden cruzar porque no tienen monto (B2 sin la query).
+  const sinDatos = pnps.filter((p) => !porPnp[p.idKey] && p.campos.montoPagado === null);
+
+  const filas = pagos.map((x) => {
+    const estado = usados.get(x);
+    if (estado === 'cruzado') {
+      const r = Object.values(porPnp).find((v) => v.estado === 'cruzado' && v.pagos.includes(x));
+      return { pago: x, estado, pnp: r.pnp, confianza: r.confianza, razones: r.razones, cruce: r };
+    }
+    if (estado === 'ambiguo') {
+      const ps = Object.values(porPnp)
+        .filter((v) => v.estado === 'ambiguo' && v.candidatos.some((c) => c.pagos.includes(x)))
+        .map((v) => v.pnp);
+      const razones = Object.values(porPnp)
+        .filter((v) => v.estado === 'ambiguo')
+        .flatMap((v) => v.candidatos.filter((c) => c.pagos.includes(x)))[0]?.razones || [];
+      return { pago: x, estado, pnps: ps, razones };
+    }
+    const compatible = sinDatos.some((p) => {
+      const L = loteDe(p);
+      return !L || L.loteEl === null || L.loteEl === undefined || x.loteEl === null || L.loteEl === x.loteEl;
+    });
+    return { pago: x, estado: !pnps.length || compatible ? 'sin_datos' : 'sin_pnp' };
+  });
+
+  return { porPnp, filas, sugerencias, sinDatos };
+}
+
+// ---------------------------------------------------------------------------
+// Modelo completo
+// ---------------------------------------------------------------------------
+
+/**
+ * Entrada:
+ *   texto, query: strings pegados
+ *   overrides: { lotes: { [num]: { entidad, archivo } },
+ *                pnps: { [idSinCeros]: { area, decision, recibo, fechaPago, montoPagado,
+ *                         nombre, dni, concepto, subconcepto, planPago, notas, motivoBeca,
+ *                         cuit, razonSocial } } }
+ */
+function analizar({ texto = '', query = '', tesoreria = '', overrides = {} } = {}) {
+  const ovLotes = overrides.lotes || {};
+  const ovPnps = overrides.pnps || {};
+  const filasQuery = parsearQuery(query);
+  let pagosTes = parsearTesoreria(tesoreria);
+  let tipo = detectarTipo(texto);
+  let tesoreriaEnTexto = false;
+  // Si en el cuadro 1 pegaron el mail de Tesorería, se toma como tal.
+  if (tipo === 'usuario' && !pagosTes.length) {
+    const t = parsearTesoreria(texto);
+    if (t.length) { pagosTes = t; tesoreriaEnTexto = true; texto = ''; tipo = 'vacio'; }
+  }
+  if (tipo === 'vacio' && pagosTes.length) tipo = 'tesoreria';
+  else if (tipo === 'vacio' && filasQuery.length) tipo = 'pnp';
+
+  const loteTexto = extraerLote(texto);
+  const infoTexto = extraerInfoLote(texto);
+  const modelo = { tipo, loteTexto, infoTexto, lotes: [], pnps: [], avisos: [] };
+  if (tesoreriaEnTexto) {
+    modelo.avisos.push({ nivel: 'info', texto: 'El cuadro 1 parece el mensaje de Tesorería: lo tomé como tal (su lugar es el cuadro 4).' });
+  }
+
+  if (tipo === 'notificacion') return modelo;
+
+  if (tipo === 'error_lote') {
+    const el = extraerErrorLote(texto);
+    const ov = (loteTexto && ovLotes[loteTexto.num]) || {};
+    modelo.errorLote = {
+      ...el,
+      caso: clasificarErrorLote(el.error),
+      lote: loteTexto,
+      entidad: ov.entidad || infoTexto.entidad || '',
+      archivo: ov.archivo || infoTexto.archivo || '',
+    };
+    if (!loteTexto) modelo.avisos.push({ nivel: 'alerta', texto: 'No encontré el número de lote en el texto.' });
+    return modelo;
+  }
+
+  if (tipo === 'usuario') {
+    modelo.pistas = extraerPistasUsuario(texto);
+    return modelo;
+  }
+
+  if (tipo !== 'pnp' && tipo !== 'tesoreria') return modelo;
+
+  // --- Filas del texto + filas de la query -----------------------------------
+  const filas = parsearFilasPnp(texto);
+  const usadas = new Set();
+  const buscarFilaQuery = (nro, codigo) => {
+    let i = filasQuery.findIndex((q, k) => !usadas.has(k) && q.PNP_Id && sinCeros(q.PNP_Id) === sinCeros(nro));
+    if (i < 0 && codigo && codigo.length > 10) {
+      i = filasQuery.findIndex((q, k) => !usadas.has(k) && q.CodigoBarras && q.CodigoBarras === codigo);
+    }
+    if (i < 0) return null;
+    usadas.add(i);
+    return filasQuery[i];
+  };
+
+  const crudos = filas.map((f) => ({ ...f, q: buscarFilaQuery(f.nro, f.codigo), origen: 'texto' }));
+  filasQuery.forEach((q, k) => {
+    if (usadas.has(k)) return;
+    crudos.push({ nro: q.PNP_Id, codigo: q.CodigoBarras, error: q.Error, q, origen: 'query' });
+  });
+
+  // --- Lotes ------------------------------------------------------------------
+  const lotes = new Map();
+  const obtenerLote = (lote) => {
+    const key = lote ? String(lote.num) : 'sin-lote';
+    if (!lotes.has(key)) {
+      lotes.set(key, { key, lote, entidad: '', archivo: '', fuente: {}, pnps: [] });
+    }
+    return lotes.get(key);
+  };
+
+  for (const c of crudos) {
+    const loteFila = (c.q && loteDesde(c.q.Lote_Id)) || loteTexto;
+    const L = obtenerLote(loteFila);
+    if (c.q) {
+      if (!L.entidad && c.q.EntidadRecaudadora) { L.entidad = c.q.EntidadRecaudadora; L.fuente.entidad = 'query'; }
+      if (!L.archivo && c.q.NombreArchivo) { L.archivo = c.q.NombreArchivo; L.fuente.archivo = 'query'; }
+    }
+    c.L = L;
+  }
+  for (const L of lotes.values()) {
+    if (!L.entidad && infoTexto.entidad) { L.entidad = infoTexto.entidad; L.fuente.entidad = 'texto'; }
+    if (!L.archivo && infoTexto.archivo) { L.archivo = infoTexto.archivo; L.fuente.archivo = 'texto'; }
+    const ov = (L.lote && ovLotes[L.lote.num]) || ovLotes[L.key] || {};
+    if (!vacio(ov.entidad)) { L.entidad = ov.entidad.trim(); L.fuente.entidad = 'manual'; }
+    if (!vacio(ov.archivo)) { L.archivo = ov.archivo.trim(); L.fuente.archivo = 'manual'; }
+    // Lote de E-Learning: del nombre de archivo, o de la sugerencia del cruce con Tesorería si se aceptó.
+    L.loteEl = loteElDesdeArchivo(L.archivo);
+    if (L.loteEl !== null) L.fuente.loteEl = 'archivo';
+    else if (!vacio(ov.loteEl) && Number.isFinite(Number(ov.loteEl))) { L.loteEl = Number(ov.loteEl); L.fuente.loteEl = 'sugerencia'; }
+  }
+
+  // --- PNPs -------------------------------------------------------------------
+  for (const c of crudos) {
+    const L = c.L;
+    const idKey = sinCeros(c.nro);
+    const ov = ovPnps[idKey] || {};
+    const cl = clasificarError(c.error, c.codigo);
+    const d = cl.datos;
+    const q = c.q || {};
+
+    const tomar = (campo, ...candidatos) => {
+      if (!vacio(ov[campo])) return { v: String(ov[campo]).trim(), f: 'manual' };
+      for (const [v, f] of candidatos) if (!vacio(v)) return { v, f };
+      return { v: '', f: null };
+    };
+
+    const campos = {};
+    const fuentes = {};
+    const set = (campo, r) => { campos[campo] = r.v; fuentes[campo] = r.f; };
+    set('fechaPago', tomar('fechaPago', [formatFecha(q.FechaPago), 'query']));
+    const monto = tomar('montoPagado', [parseNumero(q.MontoPagado), 'query'], [d.montoPagado, 'error']);
+    campos.montoPagado = monto.v === '' ? null : parseNumero(monto.v);
+    fuentes.montoPagado = monto.f;
+    set('nombre', tomar('nombre', [q.NombreInscripto, 'query'], [d.alumno, 'error']));
+    set('dni', tomar('dni', [q.DNI, 'query']));
+    set('concepto', tomar('concepto', [q.ConceptoIngreso, 'query']));
+    set('subconcepto', tomar('subconcepto', [q.SubConceptoIngreso, 'query'], [d.subconcepto, 'error']));
+    set('planPago', tomar('planPago', [q.PlanPago, 'query']));
+    for (const opc of ['notas', 'motivoBeca', 'cuit', 'razonSocial', 'recibo', 'email']) {
+      campos[opc] = vacio(ov[opc]) ? '' : String(ov[opc]).trim();
+      if (campos[opc]) fuentes[opc] = 'manual';
+    }
+    campos.codigoBarras = q.CodigoBarras || c.codigo || '';
+    campos.montoCuota = parseNumero(q.MontoCuota) ?? d.montoCuota ?? null;
+
+    const pnp = {
+      id: c.nro,
+      idKey,
+      origen: c.origen,
+      codigo: c.codigo,
+      error: c.error,
+      errorCorto: d.errorCorto,
+      tipo: cl.tipo,
+      sub: cl.sub,
+      datos: d,
+      campos,
+      fuentes,
+      loteKey: L.key,
+      mojibake: tieneMojibake(d.alumno) || tieneMojibake(q.NombreInscripto) || tieneMojibake(ov.nombre),
+      decision: ov.decision || 'pendiente',
+      pagosElegidos: Array.isArray(ov.pagosTesoreria) ? ov.pagosTesoreria.map(String) : [],
+    };
+
+    const auto = detectarArea({
+      archivo: L.archivo,
+      concepto: campos.concepto,
+      subconcepto: [campos.subconcepto, d.subconcepto].filter(Boolean).join(' '),
+      alumno: [d.alumno, campos.nombre].filter(Boolean).join(' '),
+    });
+    pnp.areaDetectada = auto;
+    pnp.area = ov.area && CONFIG.areas[ov.area]
+      ? { key: ov.area, fuente: 'manual', detalle: 'elegida a mano' }
+      : auto;
+
+    pnp.accion = resolverAccion(pnp, pnp.decision);
+    L.pnps.push(pnp);
+    modelo.pnps.push(pnp);
+  }
+
+  // --- Cruce con Tesorería ----------------------------------------------------
+  if (pagosTes.length) {
+    const cruce = cruzarTesoreria(modelo.pnps, pagosTes, [...lotes.values()]);
+    modelo.tesoreria = { pagos: pagosTes, ...cruce };
+    for (const p of modelo.pnps) {
+      const r = cruce.porPnp[p.idKey] || null;
+      p.tesoreria = r;
+      p.completadoTesoreria = [];
+      if (!r || r.estado !== 'cruzado' || r.confianza !== 'alta') continue;
+      // Solo se completan huecos: nunca se pisa un dato de la query, del error o manual.
+      const llenar = (campo, v) => {
+        if (vacio(v) || !vacio(p.campos[campo])) return;
+        p.campos[campo] = v;
+        p.fuentes[campo] = 'tesoreria';
+        p.completadoTesoreria.push(campo);
+      };
+      const uno = (f) => { const vs = [...new Set(r.pagos.map(f).filter((v) => !vacio(v)))]; return vs.length === 1 ? vs[0] : ''; };
+      if (new Set(r.pagos.map((x) => x.nombreNormalizado)).size === 1) llenar('nombre', r.pagos[0].nombre);
+      llenar('fechaPago', uno((x) => x.fechaPago));
+      llenar('email', uno((x) => x.email.toLowerCase()));
+      if (p.campos.montoPagado === null && r.pagos.every((x) => x.montoBruto !== null)) {
+        p.campos.montoPagado = redondear(r.pagos.reduce((t, x) => t + x.montoBruto, 0));
+        p.fuentes.montoPagado = 'tesoreria';
+        p.completadoTesoreria.push('montoPagado');
+      }
+      const L = lotes.get(p.loteKey);
+      if (L && vacio(L.entidad) && r.pagos.every((x) => x.entidad === 'Mercado Pago')) {
+        L.entidad = 'Mercado Pago';
+        L.fuente.entidad = 'tesoreria';
+      }
+    }
+  }
+
+  for (const pnp of modelo.pnps) {
+    const campos = pnp.campos;
+    pnp.faltantes = camposNecesarios(pnp).filter((k) => (k === 'montoPagado' ? campos.montoPagado === null : vacio(campos[k])));
+
+    // B2: el nombre no viene de la query; se recomienda conseguirlo de otra fuente.
+    pnp.faltaNombreB2 = pnp.accion.tipo === 'derivar' && pnp.accion.motivo === 'cuota_inexistente' && vacio(campos.nombre);
+    pnp.nombreDeTesoreria = pnp.fuentes.nombre === 'tesoreria';
+    pnp.faltaRecibo = pnp.accion.tipo === 'cobro_manual' && vacio(campos.recibo);
+    pnp.areaIndeterminada = pnp.accion.tipo === 'derivar' && !pnp.area.key;
+    const r = pnp.tesoreria;
+    if (r && r.estado === 'cruzado' && r.suma) {
+      const iguales = r.pagos.every((x) => montosIguales(x.montoBruto, r.pagos[0].montoBruto));
+      const n = r.pagos.length;
+      const cuantas = { 2: 'dos', 3: 'tres', 4: 'cuatro' }[n] || String(n);
+      const de = r.por.startsWith('mail') ? 'del mismo mail' : 'de la misma orden';
+      const detalle = iguales ? `${n} pagos de ${formatMonto(r.pagos[0].montoBruto)}` : `${n} pagos (${r.pagos.map((x) => formatMonto(x.montoBruto)).join(' + ')})`;
+      pnp.avisoSuma = `El monto pagado (${formatMonto(r.monto)}) es la suma de ${detalle} ${de}: pagó ${cuantas} cuotas en un mismo pago.`;
+    }
+  }
+
+  for (const L of lotes.values()) {
+    const necesita = new Set();
+    for (const p of L.pnps) {
+      if (p.accion.tipo === 'derivar') { necesita.add('archivo'); necesita.add('entidad'); }
+      if (p.accion.tipo === 'cobro_manual') necesita.add('entidad');
+      if (p.areaIndeterminada) necesita.add('archivo');
+    }
+    L.faltantes = ['archivo', 'entidad'].filter((k) => necesita.has(k) && vacio(L[k]));
+    modelo.lotes.push(L);
+  }
+
+  // --- Avisos -----------------------------------------------------------------
+  if (tipo === 'pnp' && !filas.length && !filasQuery.length) {
+    modelo.avisos.push({ nivel: 'alerta', texto: 'Parece un lote con PNP pero no pude leer ninguna fila Nº / Código de Barras / Error. Revisá el texto pegado.' });
+  }
+  if (tipo === 'pnp' && !loteTexto && !filasQuery.some((q) => q.Lote_Id)) {
+    modelo.avisos.push({ nivel: 'alerta', texto: 'No encontré el número de lote en el texto.' });
+  }
+  for (const p of modelo.pnps) {
+    if (p.mojibake) {
+      modelo.avisos.push({ nivel: 'alerta', pnp: p.id, texto: `PNP ${p.id}: el nombre tiene caracteres rotos (${p.datos.alumno || p.campos.nombre}). Avisar a Soporte de Aplicaciones para que corrijan el nombre ANTES de cobrar (si no, el sistema rompe).` });
+    }
+    if (p.areaIndeterminada) {
+      modelo.avisos.push({ nivel: 'alerta', pnp: p.id, texto: `PNP ${p.id}: área dueña indeterminada. Necesito el Nombre de Archivo del lote (Cobros externos → Lotes) o elegí el área a mano.` });
+    }
+    if (p.nombreDeTesoreria) {
+      const r = p.tesoreria;
+      modelo.avisos.push({ nivel: 'info', pnp: p.id, texto: `PNP ${p.id}: nombre tomado del mensaje de Tesorería (pago ${r.pagos.map((x) => x.idPago).join(' + ')}${r.loteEl !== null ? `, lote EL ${r.loteEl}` : ''}).` });
+    }
+    if (p.avisoSuma) modelo.avisos.push({ nivel: 'info', pnp: p.id, texto: `PNP ${p.id}: ${p.avisoSuma}` });
+    if (p.faltaNombreB2) {
+      modelo.avisos.push({ nivel: 'info', pnp: p.id, texto: `PNP ${p.id}: la cuota no existe en SCI, así que la query no trae nombre ni concepto. Sacá el nombre del inscripto de otra fuente (SysGestión, Mercado Pago, comprobante); si no se consigue, la línea se omite.` });
+    }
+    if (p.faltaRecibo) {
+      modelo.avisos.push({ nivel: 'info', pnp: p.id, texto: `PNP ${p.id}: cargá el Nº de recibo del cobro manual.` });
+    }
+    if (p.origen === 'query') {
+      modelo.avisos.push({ nivel: 'info', pnp: p.id, texto: `PNP ${p.id}: vino solo en la query (no estaba en el texto del ticket).` });
+    }
+  }
+  if (modelo.tesoreria) avisosTesoreria(modelo);
+  return modelo;
+}
+
+function listaIds(pnps) {
+  const ids = pnps.map((p) => p.id);
+  return ids.length <= 1 ? ids.join('') : `${ids.slice(0, -1).join(', ')} y ${ids[ids.length - 1]}`;
+}
+
+function avisosTesoreria(modelo) {
+  const t = modelo.tesoreria;
+  for (const x of t.pagos) if (x.aviso) modelo.avisos.push({ nivel: 'alerta', texto: `Tesorería: ${x.aviso}` });
+  if (t.sinDatos.length) {
+    const todosB2 = t.sinDatos.every((p) => p.tipo === 'B2');
+    const n = t.sinDatos.length;
+    modelo.avisos.push({
+      nivel: 'alerta',
+      texto: `${n === 1 ? 'El PNP' : 'Los PNP'} ${listaIds(t.sinDatos)}${todosB2 ? ' (no existe la cuota)' : ''} no ${n === 1 ? 'trae' : 'traen'} monto ni fecha de pago: hace falta la query para cruzarlos con Tesorería. Corré la query de "Datos faltantes" y pegá la grilla en el cuadro 2.`,
+    });
+  }
+  for (const s of t.sugerencias) {
+    modelo.avisos.push({
+      nivel: 'info',
+      texto: `Sugerencia: el lote SCI ${s.lote ? s.lote.id8 : '?'} parece ser el lote EL ${s.loteEl} (el PNP ${s.pnpId} cruzó con confianza alta por nombre). No está confirmado: confirmalo con el Nombre de archivo del lote.`,
+    });
+  }
+}
+
+// ---- src/templates.js ----
+// Plantillas: todos los textos listos para copiar. Salen EXACTOS de docs/SKILL.md.
+// Los huecos van como [COMPLETAR: campo]; nunca se inventan datos.
+
+
+
+
+
+const completar = (campo) => `[COMPLETAR: ${campo}]`;
+
+// ---------------------------------------------------------------------------
+// Motivos por tipo de derivación
+// ---------------------------------------------------------------------------
+
+const MOTIVOS = {
+  montos: {
+    ticket: 'el valor abonado no coincide con el valor de la cuota',
+    mail: 'el monto abonado no coincide con ninguna de las cuotas del curso',
+    grupo: 'tienen un valor abonado que no coincide con el valor de la cuota',
+    resumen1: 'Monto no coincide con la cuota',
+    resumenN: 'Montos no coinciden',
+    resolucion: 'monto pagado no coincide con la cuota',
+    nota: 'Monto pagado no coincide con la cuota',
+  },
+  cuota_inexistente: {
+    ticket: 'el pago apunta a un número de cuota inexistente',
+    mail: 'el pago apunta a un número de cuota inexistente',
+    grupo: 'apuntan a un numero de cuota inexistente',
+    resumen1: 'Cuota inexistente',
+    resumenN: 'Cuotas inexistentes',
+    resolucion: 'el pago apunta a un número de cuota inexistente',
+    nota: 'El pago apunta a un número de cuota inexistente',
+  },
+  cuotas_anteriores: {
+    ticket: 'el inscripto tiene una o más cuotas anteriores sin abonar, lo que impide imputar el pago',
+    mail: 'el inscripto tiene una o más cuotas anteriores sin abonar, lo que impide imputar el pago',
+    grupo: 'corresponden a inscriptos con una o más cuotas anteriores sin abonar, lo que impide imputarlos',
+    resumen1: 'Cuotas anteriores sin abonar',
+    resumenN: 'Cuotas anteriores sin abonar',
+    resolucion: 'cuotas anteriores sin abonar',
+    nota: 'Cuota ya impactada y hay cuotas anteriores sin abonar',
+  },
+  sin_cuotas: {
+    ticket: 'el inscripto ya tiene todas las cuotas del curso abonadas (por lo que correspondería evaluar un reembolso o si se encuentra cursando otro curso)',
+    mail: 'el inscripto ya tiene todas las cuotas del curso abonadas (por lo que correspondería evaluar un reembolso o si se encuentra cursando otro curso)',
+    grupo: 'corresponden a inscriptos que ya tienen todas las cuotas del curso abonadas',
+    resumen1: 'Sin cuotas disponibles',
+    resumenN: 'Sin cuotas disponibles',
+    resolucion: 'no hay cuotas disponibles',
+    nota: 'Cuota ya impactada y no quedan cuotas disponibles',
+  },
+  b3_pendiente: {
+    ticket: completar('motivo según lo que veas en la inscripción'),
+    mail: completar('motivo según lo que veas en la inscripción'),
+    grupo: completar('motivo'),
+    resumen1: completar('motivo corto'),
+    resumenN: completar('motivo corto'),
+    resolucion: completar('resumen'),
+    nota: `Cuota ya impactada (${completar('qué se vio en la inscripción')})`,
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function nombreArea(key) {
+  return key && CONFIG.areas[key] ? CONFIG.areas[key].nombre : completar('área');
+}
+
+function valor(v, etiqueta) {
+  return v === null || v === undefined || String(v).trim() === '' ? completar(etiqueta) : String(v);
+}
+
+function montoTexto(p) {
+  return p.campos.montoPagado === null ? completar(ETIQUETAS.montoPagado) : formatMonto(p.campos.montoPagado);
+}
+
+/** Agrupa los PNP por motivo, ordenando por cantidad (empate: el que apareció primero). */
+function agruparPorMotivo(pnps) {
+  const grupos = [];
+  for (const p of pnps) {
+    let g = grupos.find((x) => x.motivo === p.accion.motivo);
+    if (!g) { g = { motivo: p.accion.motivo, pnps: [], orden: grupos.length }; grupos.push(g); }
+    g.pnps.push(p);
+  }
+  return grupos.sort((a, b) => b.pnps.length - a.pnps.length || a.orden - b.orden);
+}
+
+function lineasPnp(p, destino) {
+  const c = p.campos;
+  const l = [
+    `Error: ${p.errorCorto || p.error}`,
+    `Código de barras: ${valor(c.codigoBarras, 'Código de barras')}`,
+    `Fecha de pago: ${valor(c.fechaPago, ETIQUETAS.fechaPago)}`,
+    `Monto pagado: ${montoTexto(p)}`,
+  ];
+  if (p.accion.motivo === 'cuota_inexistente') {
+    // Solo Error, Código, Fecha, Monto y Nombre (si se consiguió de otra fuente).
+    if (c.nombre) l.push(`Nombre inscripto: ${c.nombre}`);
+    if (c.dni) l.push(`Número de documento: ${c.dni}`);
+    if (c.email) l.push(`Mail inscripto: ${c.email}`);
+    return l;
+  }
+  if (c.razonSocial && !c.nombre) {
+    l.push(`Nombre razón social inscripción: ${c.razonSocial}`);
+  } else {
+    l.push(`Nombre inscripto: ${valor(c.nombre, ETIQUETAS.nombre)}`);
+  }
+  if (destino === 'mail' && !c.razonSocial) l.push(`Número de documento: ${valor(c.dni, ETIQUETAS.dni)}`);
+  else if (c.dni) l.push(`Número de documento: ${c.dni}`);
+  if (c.email) l.push(`Mail inscripto: ${c.email}`);
+  if (c.razonSocial && c.nombre) l.push(`Nombre razón social inscripción: ${c.razonSocial}`);
+  if (c.cuit) l.push(`CUIT: ${c.cuit}`);
+  l.push(
+    `Concepto Ingreso: ${valor(c.concepto, ETIQUETAS.concepto)}`,
+    `SubConcepto Ingreso: ${valor(c.subconcepto, ETIQUETAS.subconcepto)}`,
+    `Plan Pago: ${valor(c.planPago, ETIQUETAS.planPago)}`,
+  );
+  if (c.notas) l.push(`Notas: ${c.notas}`);
+  if (c.motivoBeca) l.push(`Motivo beca: ${c.motivoBeca}`);
+  return l;
+}
+
+function cuerpo(lote, pnps, destino) {
+  const grupos = agruparPorMotivo(pnps);
+  const principal = grupos[0];
+  const motivo = MOTIVOS[principal.motivo][destino === 'mail' ? 'mail' : 'ticket'];
+  const uno = principal.pnps.length === 1;
+  const intro = uno
+    ? `Me comunico desde el área de Soporte de Aplicaciones ya que tenemos un pago el cual no se pudo procesar en el Sistema de Control de Ingresos (SCI) debido a que ${motivo}. Por lo tanto tampoco lo podemos impactar manualmente.`
+    : `Me comunico desde el área de Soporte de Aplicaciones ya que tenemos pagos los cuales no se pudieron procesar en el Sistema de Control de Ingresos (SCI) debido a que ${motivo}. Por lo tanto tampoco los podemos impactar manualmente.`;
+
+  const bloque = (g) => g.pnps.map((p) => lineasPnp(p, destino).join('\n')).join('\n\n');
+  const partes = [
+    'Buenas tardes,',
+    intro,
+    'A continuación le incluyo más datos:',
+    `Entidad Recaudadora: ${valor(lote.entidad, ETIQUETAS.entidad)}\nNombre Archivo/Lote: ${valor(lote.archivo, ETIQUETAS.archivo)}`,
+    bloque(principal),
+  ];
+  for (const g of grupos.slice(1)) {
+    partes.push(`Ademas, en el mismo lote, algunos pagos ${MOTIVOS[g.motivo].grupo}.`, bloque(g));
+  }
+  partes.push('Quedamos al pendiente acerca de cómo proceder en este caso.');
+  return { partes, grupos };
+}
+
+// ---------------------------------------------------------------------------
+// 1. Ticket a E-Learning (uno por lote)
+// ---------------------------------------------------------------------------
+
+function resumenTicket(lote, pnps) {
+  const grupos = agruparPorMotivo(pnps);
+  const archivo = valor(lote.archivo, ETIQUETAS.archivo);
+  if (pnps.length === 1) {
+    return `Pago no procesable en SCI - ${MOTIVOS[grupos[0].motivo].resumen1} - ${archivo}`;
+  }
+  const frases = grupos.map((g, i) => {
+    const f = MOTIVOS[g.motivo].resumenN;
+    return i === 0 ? f : f.charAt(0).toLowerCase() + f.slice(1);
+  });
+  const motivo = frases.length === 1 ? frases[0] : `${frases.slice(0, -1).join(', ')} y ${frases[frases.length - 1]}`;
+  return `Pagos no procesables en SCI - ${motivo} - ${archivo}`;
+}
+
+function ticketElearning(lote, pnps) {
+  const { partes } = cuerpo(lote, pnps, 'ticket');
+  partes.push('Saludos cordiales.');
+  return { resumen: resumenTicket(lote, pnps), descripcion: partes.join('\n\n') };
+}
+
+// ---------------------------------------------------------------------------
+// 2. Mail al coordinador del área (no E-Learning)
+// ---------------------------------------------------------------------------
+
+function mailCoordinador(lote, areaKey, pnps, ctx = {}) {
+  const area = areaKey ? CONFIG.areas[areaKey] : null;
+  const para = area && area.para ? area.para.join('; ') : completar('destinatario (elegí el área dueña)');
+  const cab = ['Asunto: Pago no Procesable en SCI', `Para: ${para}`];
+  if (area && area.cc && area.cc.length) cab.push(`CC: ${area.cc.join('; ')}`);
+  cab.push(`CCO: ${CONFIG.cco}`);
+  const { partes } = cuerpo(lote, pnps, 'mail');
+  const firma = ctx.firma && ctx.firma.trim() ? ctx.firma.trim() : completar('firma');
+  partes.push(`Saludos cordiales,\n${firma}`);
+  return [cab.join('\n'), ...partes].join('\n\n');
+}
+
+// ---------------------------------------------------------------------------
+// 3. Descripción Resolución del PNP (campo en SCI)
+// ---------------------------------------------------------------------------
+
+function resolucionPnp(p, ctx = {}) {
+  const fecha = ctx.fecha || formatFecha(new Date());
+  const a = p.accion;
+  if (a.tipo === 'cobro_manual') {
+    return { pendiente: 'No', texto: `Se cobró manualmente. Recibo ${valor(p.campos.recibo || ctx.recibo, 'Nº de recibo')}` };
+  }
+  if (a.tipo === 'irresoluble') {
+    return {
+      pendiente: 'Sí',
+      texto: `${p.id}: Irresoluble.\n${fecha}: No existe ninguna cuota asociada con el código de barras. Por lo tanto tampoco se puede determinar a qué inscripción, curso y/o área correspondería el pago.`,
+    };
+  }
+  if (a.tipo === 'registro') {
+    return {
+      pendiente: 'Sí',
+      texto: `${p.id}: Pendiente.\n${fecha}: El pago llegó sin código de cuota (código ${p.codigo}); causa desconocida. Se deja registro hasta que aparezca el reclamo.`,
+    };
+  }
+  if (a.tipo === 'soporte') {
+    return {
+      pendiente: 'Sí',
+      texto: `No se puede cobrar manualmente (error sin procedimiento documentado: ${p.errorCorto || p.error}). Se derivó a Soporte de Aplicaciones.`,
+    };
+  }
+  const area = p.area.key ? CONFIG.areas[p.area.key] : null;
+  const areaMedio = area ? `${area.nombre} vía ${area.medio}` : `${completar('área')} vía ${completar('medio')}`;
+  const nro = ctx.ticketNro ? String(ctx.ticketNro).replace(/^#/, '') : '<NÚMERO>';
+  const id = ctx.ticketId ? String(ctx.ticketId) : '<IDTICKET>';
+  return {
+    pendiente: 'Sí',
+    texto: `No se puede cobrar manualmente (${MOTIVOS[a.motivo].resolucion}). Se comunicó con ${areaMedio}. Ticket #${nro} donde se trabaja el PNP: ${CONFIG.urlTicket}${id}`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// 4. Nota interna del ticket
+// ---------------------------------------------------------------------------
+
+function accionNota(p, ctx) {
+  const a = p.accion;
+  const recibo = valor(p.campos.recibo || ctx.recibo, 'Nº de recibo');
+  switch (a.tipo) {
+    case 'cobro_manual':
+      if (p.tipo === 'B3') return ['Resuelto', `Cuota ya impactada; se cobró manualmente la cuota siguiente (Recibo ${recibo}).`];
+      if (p.tipo === 'B2') return ['Resuelto', `La cuota apareció buscando por código de barras en SCI; se cobró manualmente (Recibo ${recibo}).`];
+      return ['Resuelto', `El monto pagado coincide con otra cuota del plan; se cobró manualmente (Recibo ${recibo}).`];
+    case 'irresoluble':
+      return ['Irresoluble', `No existe cuota para el código ${p.datos.codigoError || p.codigo} (la cuota fue eliminada antes de que llegue el pago). Se dejó el PNP como pendiente.`];
+    case 'registro':
+      return ['Pendiente', 'Pago sin código de cuota, causa desconocida. Se cierra el ticket y se deja registro hasta que aparezca el reclamo.'];
+    case 'soporte':
+      return ['Pendiente', 'Error sin procedimiento documentado. Se derivó a Soporte de Aplicaciones.'];
+    default: {
+      const area = p.area.key ? CONFIG.areas[p.area.key] : null;
+      let medio;
+      if (!area) medio = `Se comunicó con ${completar('área')} vía ${completar('medio')} con los datos del pago.`;
+      else if (area.canal === 'ticket') medio = `Se abrió ticket a ${area.nombre} (portal Jira) con los datos del pago.`;
+      else medio = `Se envió mail a ${area.nombre} con los datos del pago.`;
+      return ['Pendiente', `${MOTIVOS[a.motivo].nota}. ${medio} Se marcó el PNP como pendiente.`];
+    }
+  }
+}
+
+function listaY(xs) {
+  return xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} y ${xs[xs.length - 1]}`;
+}
+
+/** "PNP 00012469: datos completados con el mensaje de Tesorería (pago 1236361, lote EL 1893)." o null. */
+function lineaTesoreria(p) {
+  const r = p.tesoreria;
+  if (!r || r.estado !== 'cruzado' || r.confianza !== 'alta') return null;
+  const ids = r.pagos.map((x) => x.idPago);
+  const pagos = `${ids.length === 1 ? 'pago' : 'pagos'} ${listaY(ids)}${r.loteEl !== null && r.loteEl !== undefined ? `, lote EL ${r.loteEl}` : ''}`;
+  const que = p.completadoTesoreria && p.completadoTesoreria.length ? 'datos completados con' : 'cruzado con';
+  return `PNP ${p.id}: ${que} el mensaje de Tesorería (${pagos}).`;
+}
+
+function notaInterna(pnps, ctx = {}) {
+  const fecha = ctx.fecha || formatFecha(new Date());
+  const lineas = pnps.map((p) => {
+    const [estado, accion] = accionNota(p, ctx);
+    return `PNP ${p.id}: ${estado}.\n${fecha}: ${accion}`;
+  });
+  return [...lineas, ...pnps.map(lineaTesoreria).filter(Boolean)].join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Seguimiento a 5 días hábiles
+// ---------------------------------------------------------------------------
+
+function fechaSeguimiento(fecha) {
+  const d = parseFecha(fecha) || new Date();
+  return formatFecha(sumarDiasHabiles(d, CONFIG.diasSeguimiento));
+}
+
+function recordatorio(ctx = {}) {
+  const fecha = ctx.fecha || formatFecha(new Date());
+  return `Seguimiento: el ${fechaSeguimiento(fecha)} (${CONFIG.diasSeguimiento} días hábiles) revisar si el área respondió o hizo el cambio. Si no, cerrar el ticket sin éxito y actualizar la Descripción Resolución del PNP (queda pendiente).`;
+}
+
+// ---------------------------------------------------------------------------
+// Query de datos faltantes
+// ---------------------------------------------------------------------------
+
+const QUERY_BASE = `SELECT
+    pnp.Id                               AS PNP_Id,
+    pnp.LoteId                           AS Lote_Id,
+    er.Descripcion                       AS EntidadRecaudadora,
+    l.NombreArchivo                      AS NombreArchivo,
+    pnp.DescripcionError                 AS Error,
+    pnp.CodigoBarras                     AS CodigoBarras,
+    CONVERT(varchar(10), pnp.Fecha, 103) AS FechaPago,
+    pnp.Monto                            AS MontoPagado,
+    c.Monto                              AS MontoCuota,
+    RTRIM(p.Nombre)                      AS NombreInscripto,
+    i.NroDocumento                       AS DNI,
+    RTRIM(ci.nombre)                     AS ConceptoIngreso,
+    sc.Descripcion                       AS SubConceptoIngreso,
+    pp.Descripcion                       AS PlanPago
+FROM SciLotePagoNoProcesable pnp
+LEFT JOIN SciLote l                        ON l.Id = pnp.LoteId
+LEFT JOIN SciEntidadRecaudadora er         ON er.Id = l.EntidadRecaudadoraId
+LEFT JOIN scicuota c                       ON c.CodigoBarras = pnp.CodigoBarras
+LEFT JOIN SciInscripcion i                 ON i.id = c.InscripcionId
+LEFT JOIN SciSubConceptoIngresoPlanPago scp ON scp.id = i.SubConceptoIngresoPlanPago
+LEFT JOIN SciSubConceptoIngreso sc         ON sc.id = scp.SubConceptoIngresoId
+LEFT JOIN personas p                       ON p.nrodocumento = i.NroDocumento
+LEFT JOIN ConceptosIngresos ci             ON ci.conceptoingreso = sc.ConceptoIngresoId
+LEFT JOIN SciPlanPago pp                   ON pp.id = scp.PlanPagoId`;
+
+/** where: { loteId } | { pnpIds: [] } | { fecha: 'DD/MM/AAAA', monto, texto } */
+function armarQuery(where = {}) {
+  let w;
+  if (where.pnpIds && where.pnpIds.length) {
+    w = `WHERE pnp.Id IN (${where.pnpIds.map((x) => sinCeros(x)).join(', ')});`;
+  } else if (where.loteId !== undefined && where.loteId !== null && where.loteId !== '') {
+    w = `WHERE pnp.LoteId = ${sinCeros(where.loteId)};`;
+  } else {
+    const c = [];
+    const d = parseFecha(where.fecha || '');
+    if (d) {
+      const iso = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+      c.push(`CONVERT(date, pnp.Fecha) = '${iso}'`);
+    }
+    if (where.monto !== undefined && where.monto !== null && where.monto !== '') c.push(`pnp.Monto = ${where.monto}`);
+    if (where.texto) c.push(`pnp.DescripcionError LIKE '%${String(where.texto).replace(/'/g, "''")}%'`);
+    w = c.length ? `WHERE ${c.join('\n  AND ')}\nORDER BY pnp.Fecha DESC;` : 'WHERE pnp.LoteId = /*ID de lote*/;   -- o: WHERE pnp.Id IN (/*IDs de PNP*/)';
+  }
+  return `${QUERY_BASE}\n${w}`;
+}
+
+/** "Para armar el ticket me faltan estos datos: …" o null si no falta nada. */
+function textoFaltantes(modelo) {
+  const lineas = [];
+  for (const L of modelo.lotes) {
+    if (L.faltantes.length) {
+      lineas.push(`- Lote ${L.lote ? L.lote.id8 : completar('ID de lote')}: ${listaY(L.faltantes.map((k) => ETIQUETAS[k]))}`);
+    }
+  }
+  for (const p of modelo.pnps) {
+    if (p.faltantes.length) lineas.push(`- PNP ${p.id}: ${p.faltantes.map((k) => ETIQUETAS[k]).join(', ')}`);
+  }
+  if (!lineas.length) return null;
+  return `Para armar el ticket me faltan estos datos:\n${lineas.join('\n')}\n\nLo más rápido es correr esta consulta en la DB de SysAdmin y pegar el resultado en "Resultado de la query".`;
+}
+
+function queryFaltantes(modelo) {
+  const lotes = modelo.lotes.filter((L) => L.lote);
+  if (lotes.length === 1) return armarQuery({ loteId: lotes[0].lote.num });
+  return armarQuery({ pnpIds: modelo.pnps.map((p) => p.id) });
+}
+
+const numeroSql = (n) => String(Math.round(n * 100) / 100);
+
+/**
+ * Query para encontrar los PNP de los pagos de Tesorería: filtra por los lotes
+ * EL (en el nombre de archivo) y por los montos (cada pago y la suma de los
+ * pagos de una misma orden/mail en el mismo lote).
+ */
+function queryTesoreria(pagos) {
+  const lotes = [...new Set(pagos.map((x) => x.loteEl).filter((v) => v !== null))].sort((a, b) => a - b);
+  const montos = new Set(pagos.filter((x) => x.montoBruto !== null).map((x) => x.montoBruto));
+  gruposSuma(pagos).forEach((g) => montos.add(g.monto));
+  const listaMontos = [...montos].sort((a, b) => a - b).map(numeroSql);
+
+  const cond = [];
+  const todosConLote = pagos.every((x) => x.loteEl !== null);
+  if (lotes.length && todosConLote) {
+    // "[_.]" evita que el lote 1893 matchee 18930: el lote EL va seguido de "_<loteSCI>" o ".txt".
+    cond.push(`(${lotes.map((n) => `l.NombreArchivo LIKE '%.EL.%.${n}[_.]%'`).join('\n    OR ')})`);
+  }
+  if (listaMontos.length) cond.push(`pnp.Monto IN (${listaMontos.join(', ')})`);
+  const comentario = [
+    `-- PNP de los pagos que mandó Tesorería${lotes.length ? ` (lotes EL ${listaY(lotes.map(String))})` : ''}.`,
+    '-- Montos: cada pago y la suma de los pagos de una misma orden o mail en el mismo lote.',
+  ];
+  if (!todosConLote) comentario.push('-- Hay pagos sin "En lote nº": no se filtra por lote, solo por monto.');
+  const where = cond.length ? `WHERE ${cond.join('\n  AND ')}` : 'WHERE 1 = 0   -- no hay montos para buscar';
+  return `${comentario.join('\n')}\n${QUERY_BASE}\n${where}\nORDER BY pnp.LoteId, pnp.Id;`;
+}
+
+// ---------------------------------------------------------------------------
+// Cruce con Tesorería: tabla y respuesta
+// ---------------------------------------------------------------------------
+
+const ESTADOS_PAGO = {
+  cruzado: 'Cruzado',
+  ambiguo: 'Ambiguo',
+  sin_pnp: 'Sin PNP en este ticket',
+  sin_datos: 'Sin cruzar (falta la query)',
+};
+
+/** Estado de resolución del PNP, según lo que contestó el usuario en las preguntas de SCI. */
+function estadoResolucion(p, ctx = {}) {
+  const a = p.accion;
+  switch (a.tipo) {
+    case 'cobro_manual': {
+      const r = p.campos.recibo || ctx.recibo;
+      return r ? `Cobrado con recibo ${r}` : 'Cobro manual (falta el recibo)';
+    }
+    case 'irresoluble': return 'Irresoluble';
+    case 'registro': return 'Pendiente (registro)';
+    case 'soporte': return 'Derivado a Soporte de Aplicaciones';
+    default:
+      if (a.borrador) return 'Pendiente (sin revisar en SCI)';
+      return `Derivado a ${p.area.key ? CONFIG.areas[p.area.key].nombre : 'área sin definir'}`;
+  }
+}
+
+const COLUMNAS_CRUCE = [
+  'ID pago', 'Nombre', 'Fecha de pago', 'Monto', 'Lote EL', 'PNP', 'Lote SCI', 'Caso', 'Confianza', 'Razones', 'Estado',
+];
+
+/** Una fila por pago de Tesorería, con las columnas de COLUMNAS_CRUCE. */
+function tablaCruce(modelo, ctx = {}) {
+  const t = modelo.tesoreria;
+  if (!t) return [];
+  const loteSci = (p) => {
+    const L = modelo.lotes.find((x) => x.key === p.loteKey);
+    return L && L.lote ? L.lote.id8 : '';
+  };
+  return t.filas.map((f) => {
+    const x = f.pago;
+    const base = [x.idPago, x.nombre, x.fechaPago, x.montoBruto === null ? '' : formatMonto(x.montoBruto), x.loteEl === null ? '' : String(x.loteEl)];
+    if (f.estado === 'cruzado') {
+      const p = f.pnp;
+      return [...base, p.id, loteSci(p), p.tipo, f.confianza, f.razones.join('; '), estadoResolucion(p, ctx)];
+    }
+    if (f.estado === 'ambiguo') {
+      const ps = f.pnps;
+      return [...base, ps.map((p) => p.id).join(' / '), [...new Set(ps.map(loteSci))].join(' / '),
+        [...new Set(ps.map((p) => p.tipo))].join(' / '), 'ambiguo', f.razones.join('; '), 'Ambiguo: elegir a mano'];
+    }
+    return [...base, '', '', '', '', '', ESTADOS_PAGO[f.estado]];
+  });
+}
+
+function tablaCruceTsv(modelo, ctx = {}) {
+  const limpio = (v) => String(v ?? '').replace(/[\t\r\n]+/g, ' ');
+  return [COLUMNAS_CRUCE, ...tablaCruce(modelo, ctx)].map((fila) => fila.map(limpio).join('\t')).join('\n');
+}
+
+const FRASE_MOTIVO = {
+  montos: 'El monto pagado no coincide con la cuota',
+  cuota_inexistente: 'El pago apunta a una cuota inexistente',
+  cuotas_anteriores: 'El inscripto tiene cuotas anteriores sin abonar',
+  sin_cuotas: 'El inscripto ya tiene todas las cuotas del curso abonadas',
+  b3_pendiente: 'La cuota ya estaba paga',
+};
+
+function estadoParaTesoreria(p, ctx) {
+  const a = p.accion;
+  switch (a.tipo) {
+    case 'cobro_manual':
+      return `Se cobró manualmente. Recibo ${p.campos.recibo || ctx.recibo || '<NRO_RECIBO>'}.`;
+    case 'irresoluble':
+      return 'La cuota se eliminó antes de que llegue el pago y no se puede determinar a qué inscripción corresponde. Queda pendiente.';
+    case 'registro':
+      return 'El pago llegó sin código de cuota; causa desconocida. Queda pendiente.';
+    case 'soporte':
+      return 'Lo está revisando Soporte de Aplicaciones. Queda pendiente.';
+    default: {
+      const area = p.area.key ? CONFIG.areas[p.area.key] : null;
+      const nro = ctx.ticketNro ? String(ctx.ticketNro).replace(/^#/, '') : '<NÚMERO>';
+      let medio;
+      if (!area) medio = `se informó a ${completar('área')}`;
+      else if (area.canal === 'ticket') medio = `se informó a ${area.nombre} (ticket ${nro})`;
+      else medio = `se informó a ${area.nombre} por mail`;
+      return `${FRASE_MOTIVO[a.motivo]}; ${medio}. Queda pendiente.`;
+    }
+  }
+}
+
+/** Respuesta a Tesorería: una línea por pago (o por grupo de pagos que fueron a un mismo PNP). */
+function respuestaTesoreria(modelo, ctx = {}) {
+  const t = modelo.tesoreria;
+  if (!t) return null;
+  const items = [];
+  for (const f of t.filas) {
+    if (f.estado === 'cruzado') {
+      const previo = items.find((i) => i.fila.estado === 'cruzado' && i.fila.pnp === f.pnp);
+      if (previo) { previo.pagos.push(f.pago); continue; }
+    }
+    items.push({ fila: f, pagos: [f.pago] });
+  }
+
+  let borrador = false;
+  const lineas = items.map(({ fila: f, pagos }) => {
+    const x = pagos[0];
+    const montos = pagos.map((y) => y.montoBruto);
+    let monto;
+    if (pagos.length === 1) monto = montos[0] === null ? completar('monto') : `$${formatMonto(montos[0])}`;
+    else if (montos.every((m) => m === montos[0])) monto = `${pagos.length} pagos de $${formatMonto(montos[0])}`;
+    else monto = `${pagos.length} pagos (${montos.map((m) => `$${formatMonto(m)}`).join(' + ')})`;
+    const fechas = [...new Set(pagos.map((y) => y.fechaPago).filter(Boolean))];
+    const datos = [fechas.join(' y '), x.loteEl !== null ? `lote ${x.loteEl}` : ''].filter(Boolean).join(', ');
+    const cab = `- ${x.nombre} — ${monto}${datos ? ` (${datos})` : ''}`;
+
+    if (f.estado === 'cruzado') {
+      const p = f.pnp;
+      const aConfirmar = f.confianza !== 'alta';
+      if (aConfirmar || p.accion.borrador) borrador = true;
+      return `${cab}: PNP ${p.id}${aConfirmar ? ' (a confirmar)' : ''}. ${estadoParaTesoreria(p, ctx)}`;
+    }
+    if (f.estado === 'ambiguo') {
+      borrador = true;
+      const ids = f.pnps.map((p) => p.id);
+      if (ids.length === 1) return `${cab}: puede corresponder al PNP ${ids[0]}, pero hay otro pago con los mismos datos. Lo estamos revisando.`;
+      return `${cab}: puede corresponder a los PNP ${listaY(ids).replace(/ y ([^ ]+)$/, ' o $1')}. Lo estamos revisando.`;
+    }
+    if (f.estado === 'sin_datos') {
+      borrador = true;
+      return `${cab}: todavía no lo pudimos cruzar con los PNP. Lo seguimos revisando.`;
+    }
+    return `${cab}: no encontramos el PNP en los lotes revisados. Lo seguimos buscando.`;
+  });
+
+  const firma = ctx.firma && ctx.firma.trim() ? ctx.firma.trim() : '<FIRMA>';
+  const texto = [
+    `Hola ${CONFIG.tesoreria.contacto},`,
+    'Te paso el estado de los pagos que nos enviaste:',
+    lineas.join('\n'),
+    `Saludos,\n${firma}`,
+  ].join('\n\n');
+  return { texto, borrador };
+}
+
+// ---------------------------------------------------------------------------
+// Diagnóstico
+// ---------------------------------------------------------------------------
+
+function queHacer(p) {
+  const a = p.accion;
+  const area = nombreArea(p.area.key);
+  const canal = p.area.key === 'EL' ? 'ticket a E-Learning' : `mail a ${area}`;
+  switch (a.tipo) {
+    case 'cobro_manual': return 'cobrar manualmente (ver checklist de Cobro manual).';
+    case 'irresoluble': return 'la cuota fue eliminada: es irresoluble. Dejar el PNP pendiente con la resolución 3c.';
+    case 'registro': return 'código sin cuota (todo ceros): causa desconocida. Cerrar y dejar registro hasta que aparezca el reclamo.';
+    case 'soporte': return 'no hay procedimiento documentado. Pedir el texto completo/captura y derivar a Soporte de Aplicaciones.';
+    default:
+      if (a.borrador && p.tipo === 'B1') return `revisar en SCI si el monto coincide con otra cuota del plan; si no, ${canal} (borrador abajo).`;
+      if (a.borrador && p.tipo === 'B2') return `buscar por Cod. Barras en SCI; si no aparece, ${canal} (borrador abajo).`;
+      if (a.borrador && p.tipo === 'B3') return `buscar por Cobros → nombre del alumno y contestar qué se ve en la inscripción; borrador de ${canal} abajo.`;
+      return `${canal}, PNP en Pendiente = Sí.`;
+  }
+}
+
+function etiquetaCaso(p) {
+  if (p.tipo === 'B2' && p.sub === 'corto') return 'B2 · cuota eliminada';
+  if (p.tipo === 'B2' && p.sub === 'ceros') return 'B2 · código en ceros';
+  return `${p.tipo} · ${CASOS[p.tipo].toLowerCase()}`;
+}
+
+function resumenTesoreria(t) {
+  const n = t.filas.length;
+  const cuenta = (e) => t.filas.filter((f) => f.estado === e).length;
+  const lotes = [...new Set(t.pagos.map((x) => x.loteEl).filter((v) => v !== null))].sort((a, b) => a - b);
+  const partes = [`${cuenta('cruzado')} cruzado${cuenta('cruzado') === 1 ? '' : 's'}`];
+  if (cuenta('ambiguo')) partes.push(`${cuenta('ambiguo')} ambiguo${cuenta('ambiguo') === 1 ? '' : 's'}`);
+  if (cuenta('sin_datos')) partes.push(`${cuenta('sin_datos')} sin cruzar (falta la query)`);
+  if (cuenta('sin_pnp')) partes.push(`${cuenta('sin_pnp')} sin PNP en este ticket`);
+  return `Tesorería: ${n} pago${n === 1 ? '' : 's'}${lotes.length ? ` (lotes EL ${listaY(lotes.map(String))})` : ''} → ${partes.join(', ')}.`;
+}
+
+function diagnosticoPnp(modelo) {
+  const lineas = [];
+  if (modelo.tipo === 'tesoreria' && !modelo.pnps.length) {
+    lineas.push('Pedido de Tesorería: pagos sin número de recibo en SCI. Corré la query de abajo para encontrar sus PNP y pegá la grilla en el cuadro 2.');
+  }
+  for (const L of modelo.lotes) {
+    const lote = L.lote ? `Lote ${L.lote.id8}` : 'Lote sin identificar';
+    const n = L.pnps.length;
+    lineas.push(`${lote}: ${n} PNP${n === 1 ? '' : 's'}${L.archivo ? ` (${L.archivo})` : ''}.`);
+    for (const p of L.pnps) {
+      const area = p.area.key ? ` → ${nombreArea(p.area.key)}` : p.accion.tipo === 'derivar' ? ' → área indeterminada' : '';
+      lineas.push(`• PNP ${p.id} (${etiquetaCaso(p)})${area}: ${queHacer(p)}`);
+    }
+  }
+  if (modelo.tesoreria) lineas.push(resumenTesoreria(modelo.tesoreria));
+  return lineas.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Errores de lote
+// ---------------------------------------------------------------------------
+
+function notaErrorLote(el, ctx = {}, duplicados = []) {
+  const fecha = ctx.fecha || formatFecha(new Date());
+  const id = el.lote ? el.lote.id8 : completar('ID de lote');
+  const l = [
+    `${id}: ${completar('Pendiente/Resuelto')}.`,
+    `Entidad Recaudadora: ${valor(el.entidad, ETIQUETAS.entidad)}`,
+    `Nombre Archivo: ${valor(el.archivo, ETIQUETAS.archivo)}`,
+    `${fecha}: Tomé el archivo de la carpeta ${completar('RUTA')} > ${completar('AL')} > ${valor(el.archivo, 'ARCHIVO')}.`,
+  ];
+  if (el.caso.id === 'duplicados') {
+    const cods = duplicados.length ? duplicados : el.codigoMencionado ? [el.codigoMencionado] : [completar('CODIGO1'), completar('CODIGO2')];
+    l.push('Los códigos de barras que se encuentran duplicados son:', ...cods);
+    l.push(`Cambiados manualmente los códigos de barras duplicados manteniendo los IDs de cuotas, subiendo el archivo modificado a ${completar('RUTA')} > ${completar('AL')} > ${valor(el.archivo, 'ARCHIVO')} para que lo tome al día siguiente hábil ${formatFecha(sumarDiasHabiles(parseFecha(fecha) || new Date(), 1))}. En todo caso se resolverán los PNPs manualmente.`);
+  } else {
+    l.push(`${fecha}: ${el.caso.causa} ${completar('corrección realizada')}.`);
+  }
+  l.push(`${completar('DD/MM/AAAA')}: Ticket con PNPs asociado: ${completar('link')}`);
+  return l.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Todas las salidas de un modelo de PNP
+// ---------------------------------------------------------------------------
+
+function salidasPnp(modelo, ctx = {}) {
+  const ticketsEL = [];
+  const mails = [];
+  for (const L of modelo.lotes) {
+    const derivados = L.pnps.filter((p) => p.accion.tipo === 'derivar');
+    const el = derivados.filter((p) => p.area.key === 'EL');
+    if (el.length) {
+      ticketsEL.push({ lote: L, ...ticketElearning(L, el), borrador: el.some((p) => p.accion.borrador) });
+    }
+    const porArea = new Map();
+    for (const p of derivados.filter((x) => x.area.key !== 'EL')) {
+      const k = p.area.key || '';
+      if (!porArea.has(k)) porArea.set(k, []);
+      porArea.get(k).push(p);
+    }
+    for (const [k, ps] of porArea) {
+      mails.push({ lote: L, area: k || null, texto: mailCoordinador(L, k || null, ps, ctx), borrador: ps.some((p) => p.accion.borrador) });
+    }
+  }
+  const resoluciones = modelo.pnps.map((p) => ({ pnp: p, ...resolucionPnp(p, ctx), borrador: !!p.accion.borrador }));
+  const hayDerivados = modelo.pnps.some((p) => p.accion.tipo === 'derivar');
+  let tesoreria = null;
+  if (modelo.tesoreria) {
+    const t = modelo.tesoreria;
+    const sinCruzar = t.filas.filter((f) => f.estado === 'sin_pnp' || f.estado === 'sin_datos').map((f) => f.pago);
+    tesoreria = {
+      tabla: tablaCruce(modelo, ctx),
+      tsv: tablaCruceTsv(modelo, ctx),
+      respuesta: modelo.pnps.length ? respuestaTesoreria(modelo, ctx) : null,
+      query: sinCruzar.length ? queryTesoreria(modelo.tipo === 'tesoreria' && !modelo.pnps.length ? t.pagos : sinCruzar) : null,
+    };
+  }
+  return {
+    diagnostico: diagnosticoPnp(modelo),
+    faltantes: modelo.pnps.length ? textoFaltantes(modelo) : null,
+    query: queryFaltantes(modelo),
+    tesoreria,
+    ticketsEL,
+    mails,
+    resoluciones,
+    nota: modelo.pnps.length ? notaInterna(modelo.pnps, ctx) : '',
+    recordatorio: hayDerivados ? recordatorio(ctx) : '',
+    hayCobroManual: modelo.pnps.some((p) => p.accion.tipo === 'cobro_manual'),
+  };
+}
+
+const CHECKLIST_COBRO_MANUAL = [
+  'Anotar el ID de lote. En SCI (TST o PRD) buscar el lote por Id → anotar entidad recaudadora y fecha de pago.',
+  'Ver los PNPs del lote (ícono $) y copiar el código de barras de la descripción del error.',
+  'Nueva pestaña de SCI → buscar por Cod. Barras (si solo hay ID de cuota: Cobros → buscar por nombre → inscripción del SubConcepto → ícono de billetes; si no aparece Cobros en el menú, apretar Volver hasta que aparezca).',
+  'Verificar que el monto pagado coincide con una cuota y que no hay anteriores impagas.',
+  'Cargar medio de pago = el de la entidad, fecha de pago = la del PNP, tildar la cuota, tildar "Lanzar automáticamente la impresión" para obtener el nro. de recibo → Grabar. Fecha, entidad y monto deben ser IGUALES a los del PNP.',
+  'Editar el PNP: ¿Pendiente? = No, Descripción Resolución = "Se cobró manualmente" + nro. de recibo → Grabar.',
+];
+
+// ---- src/ui.js ----
+// UI: arma la página, escucha las entradas y muestra las salidas.
+// Solo corre en el navegador (en el HTML generado por build.mjs).
+
+
+
+
+
+
+// ---------------------------------------------------------------------------
+// Helpers de DOM
+// ---------------------------------------------------------------------------
+
+const $ = (sel) => document.querySelector(sel);
+
+function h(tag, attrs = {}, ...hijos) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v === null || v === undefined || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (k === 'value') el.value = v;
+    else if (k === 'checked') el.checked = !!v;
+    else el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of hijos.flat(Infinity)) {
+    if (c === null || c === undefined || c === false) continue;
+    el.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return el;
+}
+
+function escaparHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+const HUECO = /\[COMPLETAR: [^\]]*\]|<NÚMERO>|<IDTICKET>|<NRO_RECIBO>|<FIRMA>/g;
+
+function contarHuecos(texto) {
+  return (String(texto).match(HUECO) || []).length;
+}
+
+function preResaltado(texto) {
+  const pre = h('pre', { class: 'salida-texto', tabindex: '0' });
+  pre.innerHTML = escaparHtml(texto).replace(/\[COMPLETAR: [^\]]*\]|&lt;(?:NÚMERO|IDTICKET|NRO_RECIBO|FIRMA)&gt;/g, (m) => `<mark>${m}</mark>`);
+  return pre;
+}
+
+const almacen = {
+  get(k) { try { return localStorage.getItem('resolver-pnp:' + k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem('resolver-pnp:' + k, v); } catch { /* sin storage: no pasa nada */ } },
+};
+
+async function copiar(texto, boton) {
+  let ok = false;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(texto);
+      ok = true;
+    }
+  } catch { ok = false; }
+  if (!ok) {
+    const ta = h('textarea', { class: 'oculto-copia', 'aria-hidden': 'true' });
+    ta.value = texto;
+    document.body.append(ta);
+    ta.select();
+    try { ok = document.execCommand('copy'); } catch { ok = false; }
+    ta.remove();
+  }
+  if (boton) {
+    const original = boton.dataset.texto || boton.textContent;
+    boton.dataset.texto = original;
+    boton.textContent = ok ? '¡Copiado!' : 'No se pudo copiar';
+    boton.classList.toggle('ok', ok);
+    setTimeout(() => { boton.textContent = original; boton.classList.remove('ok'); }, 1500);
+  }
+}
+
+function botonCopiar(obtenerTexto, etiqueta = 'Copiar') {
+  const b = h('button', { type: 'button', class: 'btn btn-copiar' }, etiqueta);
+  b.addEventListener('click', () => copiar(typeof obtenerTexto === 'function' ? obtenerTexto() : obtenerTexto, b));
+  return b;
+}
+
+function badge(texto, clase) {
+  return h('span', { class: `badge ${clase}` }, texto);
+}
+
+function hoy() {
+  return formatFecha(new Date());
+}
+
+// ---------------------------------------------------------------------------
+// Estado
+// ---------------------------------------------------------------------------
+
+const ui = {
+  overrides: { lotes: {}, pnps: {} },
+  usuario: { fecha: '', monto: '', texto: '' },
+  archivoLote: '',
+  estructura: '',
+  todo: [], // [{ titulo, texto }] para "Copiar todo"
+};
+
+function ctx() {
+  const fecha = $('#fecha').value.trim();
+  return {
+    firma: $('#firma').value,
+    fecha: parseFecha(fecha) ? fecha : hoy(),
+    ticketNro: $('#ticket-nro').value.trim(),
+    ticketId: $('#ticket-id').value.trim(),
+    recibo: $('#recibo').value.trim(),
+  };
+}
+
+function ovPnp(idKey) {
+  if (!ui.overrides.pnps[idKey]) ui.overrides.pnps[idKey] = {};
+  return ui.overrides.pnps[idKey];
+}
+
+function ovLote(key) {
+  if (!ui.overrides.lotes[key]) ui.overrides.lotes[key] = {};
+  return ui.overrides.lotes[key];
+}
+
+let temporizador = null;
+function recalcularPronto(ms = 200) {
+  clearTimeout(temporizador);
+  temporizador = setTimeout(recalcular, ms);
+}
+
+// ---------------------------------------------------------------------------
+// Recalcular
+// ---------------------------------------------------------------------------
+
+const NOMBRES_TIPO = {
+  vacio: 'Sin texto',
+  notificacion: 'Notificación de lote',
+  error_lote: 'Error de lote',
+  pnp: 'Lote con PNP',
+  usuario: 'Ticket de usuario',
+  tesoreria: 'Pedido de Tesorería',
+};
+
+function firmaEstructura(m) {
+  return [m.tipo, m.lotes.map((L) => L.key).join(','),
+    m.pnps.map((p) => `${p.idKey}:${p.tipo}:${p.sub || ''}:${(p.completadoTesoreria || []).join('+')}`).join(','),
+    m.errorLote && m.errorLote.lote ? m.errorLote.lote.num : ''].join('|');
+}
+
+function recalcular() {
+  const texto = $('#texto').value;
+  const query = $('#query').value;
+  const tesoreria = $('#tesoreria').value;
+  const modelo = analizar({ texto, query, tesoreria, overrides: ui.overrides });
+  const f = firmaEstructura(modelo);
+  if (f !== ui.estructura) {
+    ui.estructura = f;
+    const auto = analizar({ texto, query, tesoreria, overrides: { lotes: ui.overrides.lotes } });
+    renderControles(modelo, auto);
+  }
+  renderResultados(modelo);
+}
+
+// ---------------------------------------------------------------------------
+// Controles que dependen del caso (columna izquierda + tarjetas de PNP)
+// ---------------------------------------------------------------------------
+
+function campoTexto({ id, etiqueta, valorInicial = '', placeholder = '', alCambiar, tipo = 'text', ayuda }) {
+  const input = h('input', { id, type: tipo, value: valorInicial, placeholder, autocomplete: 'off' });
+  input.addEventListener('input', () => { alCambiar(input.value); recalcularPronto(); });
+  return h('div', { class: 'campo' }, h('label', { for: id }, etiqueta), input, ayuda ? h('small', { class: 'ayuda' }, ayuda) : null);
+}
+
+function controlesLote(L, autoL) {
+  const key = L.lote ? String(L.lote.num) : L.key;
+  const ov = ui.overrides.lotes[key] || {};
+  const titulo = L.lote ? `Lote ${L.lote.id8}` : 'Lote sin identificar';
+  return h('fieldset', { class: 'lote-datos' },
+    h('legend', {}, `Datos del ${titulo}`),
+    campoTexto({
+      id: `lote-${key}-entidad`, etiqueta: 'Entidad Recaudadora', valorInicial: ov.entidad || '',
+      placeholder: (autoL && autoL.entidad) || 'Ej.: Mercado Pago', alCambiar: (v) => { ovLote(key).entidad = v; },
+    }),
+    campoTexto({
+      id: `lote-${key}-archivo`, etiqueta: 'Nombre de archivo', valorInicial: ov.archivo || '',
+      placeholder: (autoL && autoL.archivo) || 'Ej.: FP.19.EL.20260923.1881_21760.txt', alCambiar: (v) => { ovLote(key).archivo = v; },
+      ayuda: 'Se ve en Cobros externos → Lotes. Define el área (.EL. = E-Learning, SCEU = SCEU).',
+    }),
+  );
+}
+
+function renderControles(m, auto) {
+  const extra = $('#extra');
+  extra.replaceChildren();
+  const cont = $('#pnps');
+  cont.replaceChildren();
+
+  if (m.tipo === 'pnp' || m.tipo === 'tesoreria') {
+    m.lotes.forEach((L, i) => extra.append(controlesLote(L, auto.lotes[i])));
+    m.pnps.forEach((p, i) => cont.append(tarjetaPnp(p, auto.pnps[i])));
+  } else if (m.tipo === 'error_lote') {
+    const el = m.errorLote;
+    const L = { key: el.lote ? String(el.lote.num) : 'sin-lote', lote: el.lote };
+    extra.append(controlesLote(L, analizar({ texto: $('#texto').value }).errorLote));
+    const ta = h('textarea', { id: 'archivo-lote', rows: '6', spellcheck: 'false', placeholder: 'Pegá acá el contenido del archivo del lote…' });
+    ta.value = ui.archivoLote;
+    ta.addEventListener('input', () => { ui.archivoLote = ta.value; recalcularPronto(); });
+    extra.append(h('div', { class: 'campo' },
+      h('label', { for: 'archivo-lote' }, 'Contenido del archivo del lote (opcional, para detectar duplicados)'),
+      ta,
+      h('small', { class: 'ayuda' }, 'Toma los últimos 40 caracteres de cada línea no vacía y lista los repetidos (como awk | sort | uniq -d).'),
+    ));
+  } else if (m.tipo === 'usuario') {
+    const pistas = m.pistas || {};
+    const u = ui.usuario;
+    extra.append(h('fieldset', { class: 'lote-datos' },
+      h('legend', {}, 'Buscar el PNP del usuario'),
+      campoTexto({ id: 'u-fecha', etiqueta: 'Fecha de pago (DD/MM/AAAA)', valorInicial: u.fecha || pistas.fecha || '', alCambiar: (v) => { u.fecha = v; } }),
+      campoTexto({ id: 'u-monto', etiqueta: 'Monto pagado', valorInicial: u.monto || (pistas.monto !== undefined ? String(pistas.monto) : ''), alCambiar: (v) => { u.monto = v; } }),
+      campoTexto({ id: 'u-texto', etiqueta: 'Texto en el error (apellido, código…)', valorInicial: u.texto || '', alCambiar: (v) => { u.texto = v; },
+        ayuda: 'Busca en la descripción del error del PNP (ahí aparece el Alumno).' }),
+    ));
+    if (!u.fecha && pistas.fecha) u.fecha = pistas.fecha;
+    if (!u.monto && pistas.monto !== undefined) u.monto = String(pistas.monto);
+  }
+}
+
+const CAMPOS_EDITABLES = [
+  ['fechaPago', 'Fecha de pago (DD/MM/AAAA)'],
+  ['montoPagado', 'Monto pagado'],
+  ['nombre', 'Nombre inscripto'],
+  ['dni', 'Número de documento'],
+  ['concepto', 'Concepto Ingreso'],
+  ['subconcepto', 'SubConcepto Ingreso'],
+  ['planPago', 'Plan Pago'],
+];
+const CAMPOS_OPCIONALES = [
+  ['notas', 'Notas'],
+  ['motivoBeca', 'Motivo beca'],
+  ['razonSocial', 'Nombre razón social (persona jurídica)'],
+  ['cuit', 'CUIT'],
+  ['email', 'Mail inscripto'],
+];
+
+function tarjetaPnp(p, auto) {
+  const ov = ui.overrides.pnps[p.idKey] || {};
+  const tarjeta = h('article', { class: 'tarjeta pnp', id: `pnp-${p.idKey}` });
+  tarjeta.append(h('div', { class: 'pnp-estado' }));
+  tarjeta.append(h('div', { class: 'error-textual' },
+    h('span', { class: 'mini' }, 'Error (textual del SCI)'),
+    h('code', {}, p.error),
+  ));
+
+  const preg = preguntaPara(p);
+  if (preg) {
+    const nombre = `dec-${p.idKey}`;
+    const fs = h('fieldset', { class: 'pregunta' }, h('legend', {}, preg.texto));
+    for (const [v, t] of preg.opciones) {
+      const id = `${nombre}-${v}`;
+      const r = h('input', { type: 'radio', name: nombre, id, value: v, checked: (ov.decision || 'pendiente') === v });
+      r.addEventListener('change', () => { ovPnp(p.idKey).decision = v; recalcular(); });
+      fs.append(h('div', { class: 'opcion' }, r, h('label', { for: id }, t)));
+    }
+    tarjeta.append(fs);
+  }
+
+  const selId = `area-${p.idKey}`;
+  const sel = h('select', { id: selId },
+    h('option', { value: '' }, 'Automático'),
+    Object.entries(CONFIG.areas).map(([k, a]) => h('option', { value: k }, a.nombre)),
+  );
+  sel.value = ov.area || '';
+  sel.addEventListener('change', () => { ovPnp(p.idKey).area = sel.value; recalcular(); });
+  tarjeta.append(h('div', { class: 'campo campo-linea' }, h('label', { for: selId }, 'Área dueña'), sel));
+  if (p.tipo !== 'B4' && p.sub !== 'corto' && p.sub !== 'ceros') {
+    const recId = `f-${p.idKey}-recibo`;
+    const rec = h('input', { id: recId, type: 'text', value: ov.recibo || '', autocomplete: 'off', placeholder: 'si se cobra a mano (si no, usa el de "Tus datos")' });
+    rec.addEventListener('input', () => { ovPnp(p.idKey).recibo = rec.value; recalcularPronto(); });
+    tarjeta.append(h('div', { class: 'campo campo-linea' }, h('label', { for: recId }, 'Nº de recibo'), rec));
+  }
+
+  const grilla = h('div', { class: 'grilla-campos' });
+  const agregar = ([k, etiqueta]) => {
+    let ph = '';
+    if (auto) {
+      ph = k === 'montoPagado' ? (auto.campos.montoPagado !== null ? formatMonto(auto.campos.montoPagado) : '') : (auto.campos[k] || '');
+    }
+    grilla.append(campoTexto({
+      id: `f-${p.idKey}-${k}`, etiqueta, valorInicial: ov[k] || '', placeholder: ph || 'vacío',
+      alCambiar: (v) => { ovPnp(p.idKey)[k] = v; },
+    }));
+  };
+  CAMPOS_EDITABLES.forEach(agregar);
+  const grillaOpc = h('div', { class: 'grilla-campos' });
+  CAMPOS_OPCIONALES.forEach(([k, etiqueta]) => {
+    const ph = auto && auto.campos[k] ? auto.campos[k] : 'solo si aparece en SCI';
+    grillaOpc.append(campoTexto({ id: `f-${p.idKey}-${k}`, etiqueta, valorInicial: ov[k] || '', placeholder: ph, alCambiar: (v) => { ovPnp(p.idKey)[k] = v; } }));
+  });
+  const abierto = p.faltantes.length > 0 || p.faltaNombreB2;
+  tarjeta.append(h('details', { class: 'editar', open: abierto },
+    h('summary', {}, 'Completar / corregir datos de este PNP'),
+    h('p', { class: 'ayuda' }, 'Lo que escribas acá pisa lo detectado (el gris es lo que se detectó).'),
+    grilla,
+    h('details', { class: 'opcionales' }, h('summary', {}, 'Opcionales (Notas, Motivo beca, CUIT / razón social, Mail)'), grillaOpc),
+  ));
+  return tarjeta;
+}
+
+// ---------------------------------------------------------------------------
+// Estado de cada PNP (se redibuja en cada cambio)
+// ---------------------------------------------------------------------------
+
+function badgesCaso(p) {
+  const b = [];
+  if (p.tipo === 'B2' && p.sub === 'corto') b.push(badge('B2 · cuota eliminada', 'b-irresoluble'));
+  else if (p.tipo === 'B2' && p.sub === 'ceros') b.push(badge('B2 · código en ceros', 'b-b2'));
+  else b.push(badge(`${p.tipo} · ${{ B1: 'monto no coincide', B2: 'no existe la cuota', B3: 'cuota ya impactada', B4: 'sin procedimiento' }[p.tipo]}`, `b-${p.tipo.toLowerCase()}`));
+  const a = p.accion;
+  if (a.tipo === 'cobro_manual') b.push(badge('Cobro manual', 'b-cobro'));
+  else if (a.tipo === 'irresoluble') b.push(badge('Irresoluble', 'b-irresoluble'));
+  else if (a.tipo === 'registro') b.push(badge('Cerrar y dejar registro', 'b-b4'));
+  else if (a.tipo === 'soporte') b.push(badge('Derivar a Soporte de Aplicaciones', 'b-b4'));
+  else b.push(badge(a.borrador ? 'Derivar (borrador)' : 'Derivar', a.borrador ? 'b-borrador' : 'b-derivar'));
+  if (p.area.key) b.push(badge(`Área: ${CONFIG.areas[p.area.key].nombre}`, 'b-area'));
+  else if (a.tipo === 'derivar') b.push(badge('Área indeterminada', 'b-alerta'));
+  return b;
+}
+
+function estadoPnp(p) {
+  const d = p.datos;
+  const datos = [];
+  if (d.montoPagado !== undefined && d.montoPagado !== null) datos.push(['Monto pagado (error)', formatMonto(d.montoPagado)]);
+  if (d.montoCuota !== undefined && d.montoCuota !== null) datos.push(['Monto cuota', formatMonto(d.montoCuota)]);
+  if (d.montoProntoPago !== undefined && d.montoProntoPago !== null) datos.push(['Pronto pago', formatMonto(d.montoProntoPago)]);
+  if (d.cuotaId) datos.push(['ID de cuota (no es cód. de barras)', d.cuotaId]);
+  if (d.recibo) datos.push(['Recibo', `${d.recibo}${d.reciboId ? ` (Id ${d.reciboId})` : ''}`]);
+  if (d.alumno) datos.push(['Alumno', d.alumno]);
+  if (d.subconcepto) datos.push(['Sub Concepto Ingreso', d.subconcepto]);
+  if (p.area.key) datos.push(['Área detectada por', p.area.fuente === 'manual' ? 'elección manual' : p.area.detalle]);
+  const cod = p.tipo === 'B2' && p.sub === 'largo' ? desglosarCodigoBarras(p.campos.codigoBarras || p.codigo) : null;
+  if (cod) datos.push(['Dentro del código (informativo)', `ID ${cod.id}${cod.fechas.length ? ` · fechas ${cod.fechas.join(' y ')}` : ''}`]);
+  const r = p.tesoreria;
+  if (r && r.estado === 'cruzado' && r.confianza === 'alta') {
+    datos.push(['Pago de Tesorería', `${textoPagos(r.pagos)} · confianza alta${r.manual ? ' (elegido a mano)' : ''}`]);
+    datos.push(['Por qué', r.razones.join('; ')]);
+    if (p.completadoTesoreria.length) {
+      datos.push(['Completado con Tesorería', p.completadoTesoreria.map((k) => ETIQUETAS[k] || (k === 'email' ? 'Mail inscripto' : k)).join(', ')]);
+    }
+  }
+
+  const avisos = [];
+  if (p.mojibake) avisos.push(['alerta', 'Nombre con caracteres rotos: avisar a Soporte de Aplicaciones para que lo corrijan ANTES de cobrar.']);
+  if (p.tipo === 'B3') avisos.push(['info', `El ${d.cuotaId || 'número'} es ID de cuota, no código de barras: buscar por Cobros → nombre del alumno → inscripción con ese SubConcepto.`]);
+  if (p.tipo === 'B4') avisos.push(['info', 'No hay procedimiento documentado para este error. Pedí el texto completo o una captura y derivalo a Soporte de Aplicaciones. No inventar.']);
+  if (p.areaIndeterminada) avisos.push(['alerta', 'No pude determinar el área. Cargá el Nombre de archivo del lote o elegí el área a mano.']);
+  if (p.faltantes.length) avisos.push(['alerta', `Faltan: ${p.faltantes.map((k) => ETIQUETAS[k]).join(', ')}.`]);
+  if (p.nombreDeTesoreria) avisos.push(['info', 'Nombre tomado del mensaje de Tesorería.']);
+  if (p.avisoSuma) avisos.push(['info', p.avisoSuma]);
+  if (p.faltaNombreB2) avisos.push(['info', 'La cuota no existe en SCI: el nombre hay que sacarlo de SysGestión, Mercado Pago o el comprobante. Si no se consigue, la línea se omite.']);
+  if (p.faltaRecibo) avisos.push(['alerta', 'Falta el Nº de recibo del cobro manual.']);
+  if (p.accion.borrador) avisos.push(['info', 'Todavía no contestaste la pregunta de SCI: los textos se generan como borrador asumiendo derivación.']);
+
+  return [
+    h('header', { class: 'pnp-cabecera' },
+      h('h3', {}, `PNP ${p.id}`),
+      h('span', { class: 'mini' }, `Código: ${p.codigo || '—'}`),
+    ),
+    h('div', { class: 'badges' }, badgesCaso(p)),
+    datos.length ? h('dl', { class: 'datos' }, datos.map(([k, v]) => [h('dt', {}, k), h('dd', {}, v)])) : null,
+    avisos.map(([nivel, t]) => h('p', { class: `aviso aviso-${nivel}` }, t)),
+    bloqueTesoreria(p),
+  ];
+}
+
+/** "Herrera, Nicolas — pagos 1232541 + 1232542 · $92.433 + $92.433 · 29/09/2026 · lote EL 1893" */
+function textoPagos(pagos) {
+  const fechas = [...new Set(pagos.map((x) => x.fechaPago).filter(Boolean))].join(' y ');
+  const lote = pagos[0].loteEl !== null ? `lote EL ${pagos[0].loteEl}` : '';
+  return [
+    `${pagos[0].nombre} — ${pagos.length === 1 ? 'pago' : 'pagos'} ${pagos.map((x) => x.idPago).join(' + ')}`,
+    pagos.map((x) => (x.montoBruto === null ? '?' : `$${formatMonto(x.montoBruto)}`)).join(' + '),
+    fechas, lote,
+  ].filter(Boolean).join(' · ');
+}
+
+function elegirPagos(p, ids) {
+  const ov = ovPnp(p.idKey);
+  if (ids && ids.length) ov.pagosTesoreria = ids;
+  else delete ov.pagosTesoreria;
+  ui.estructura = '';
+  recalcular();
+}
+
+/** Posible pago de Tesorería (confianza media/baja), empate, o deshacer una elección manual. */
+function bloqueTesoreria(p) {
+  const r = p.tesoreria;
+  if (!r) return null;
+  if (r.estado === 'cruzado' && r.manual) {
+    return h('p', { class: 'aviso aviso-info tesoreria-pnp' }, 'Pago de Tesorería elegido a mano. ',
+      h('button', { type: 'button', class: 'btn btn-chico', onclick: () => elegirPagos(p, null) }, 'Deshacer'));
+  }
+  if (r.estado === 'cruzado' && r.confianza !== 'alta') {
+    return h('div', { class: 'aviso aviso-alerta tesoreria-pnp' },
+      h('p', {}, h('strong', {}, 'Posible pago de Tesorería: '), textoPagos(r.pagos), ` · confianza ${r.confianza} (${r.razones.join('; ')}).`),
+      h('p', {}, 'No se completó solo porque la confianza no es alta. ',
+        h('button', { type: 'button', class: 'btn btn-chico', onclick: () => elegirPagos(p, r.pagos.map((x) => x.idPago)) }, 'Usar estos datos')));
+  }
+  if (r.estado === 'ambiguo') {
+    return h('div', { class: 'aviso aviso-alerta tesoreria-pnp' },
+      h('p', {}, h('strong', {}, 'Ambiguo: '), 'hay varios pagos de Tesorería con los mismos datos. No se eligió ninguno.'),
+      h('ul', {}, r.candidatos.map((c) => h('li', {},
+        `${textoPagos(c.pagos)} (${c.razones.join('; ')}) `,
+        h('button', { type: 'button', class: 'btn btn-chico', onclick: () => elegirPagos(p, c.pagos.map((x) => x.idPago)) }, 'Usar este pago')))));
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Tarjetas de salida
+// ---------------------------------------------------------------------------
+
+function tarjetaSalida({ titulo, texto, nota, borrador = false, chips = [], clase = '', sinCopiar = false }) {
+  const huecos = contarHuecos(texto);
+  ui.todo.push({ titulo, texto });
+  return h('article', { class: `tarjeta salida ${clase}` },
+    h('header', { class: 'salida-cabecera' },
+      h('h3', {}, titulo),
+      h('div', { class: 'badges' },
+        borrador ? badge('Borrador', 'b-borrador') : null,
+        chips,
+        huecos ? badge(`${huecos} hueco${huecos === 1 ? '' : 's'} para completar`, 'b-alerta') : null,
+      ),
+      sinCopiar ? null : botonCopiar(texto),
+    ),
+    nota ? (nota instanceof Node ? nota : h('p', { class: 'ayuda' }, nota)) : null,
+    preResaltado(texto),
+  );
+}
+
+function tarjetaInfo(titulo, ...contenido) {
+  return h('article', { class: 'tarjeta salida info' }, h('h3', {}, titulo), contenido);
+}
+
+function tarjetaCruce(m, t) {
+  // En pantalla, Razones (la columna ancha) va al final para que Estado se vea sin scroll; el TSV respeta COLUMNAS_CRUCE.
+  const orden = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 9];
+  const tabla = h('table', { class: 'cruce' },
+    h('thead', {}, h('tr', {}, orden.map((j) => h('th', { scope: 'col' }, COLUMNAS_CRUCE[j])))),
+    h('tbody', {}, t.tabla.map((fila, i) => h('tr', { class: `fila-${m.tesoreria.filas[i].estado}` },
+      orden.map((j) => h('td', { class: j === 9 ? 'razones' : null }, fila[j]))))),
+  );
+  ui.todo.push({ titulo: 'Cruce con Tesorería (TSV)', texto: t.tsv });
+
+  const sugerencias = m.tesoreria.sugerencias.map((sg) => h('p', { class: 'aviso aviso-info' },
+    `Este lote SCI ${sg.lote ? sg.lote.id8 : '?'} parece ser el lote EL ${sg.loteEl} (el PNP ${sg.pnpId} cruzó con confianza alta por nombre). Es una sugerencia, no un dato confirmado. `,
+    h('button', { type: 'button', class: 'btn btn-chico', onclick: () => { ovLote(sg.loteKey).loteEl = String(sg.loteEl); recalcular(); } },
+      `Aceptar: comparar el lote contra el lote EL ${sg.loteEl}`)));
+  const aceptadas = m.lotes.filter((L) => L.fuente.loteEl === 'sugerencia').map((L) => h('p', { class: 'aviso aviso-info' },
+    `Lote SCI ${L.lote ? L.lote.id8 : '?'} = lote EL ${L.loteEl} (sugerencia aceptada, no confirmada con el archivo). `,
+    h('button', { type: 'button', class: 'btn btn-chico', onclick: () => { delete ovLote(L.key).loteEl; recalcular(); } }, 'Deshacer')));
+
+  return h('article', { class: 'tarjeta salida cruce-tesoreria' },
+    h('header', { class: 'salida-cabecera' },
+      h('h3', {}, 'Cruce con Tesorería'),
+      h('div', { class: 'badges' }, badge(`${t.tabla.length} pago${t.tabla.length === 1 ? '' : 's'}`, 'b-neutro')),
+      botonCopiar(t.tsv, 'Copiar como tabla'),
+    ),
+    h('p', { class: 'ayuda' }, 'El "lote nº" de Tesorería es el lote de E-Learning (el número del nombre de archivo FP.<n>.EL.<fecha>.<loteEL>_<loteSCI>.txt), no el ID de lote del SCI. "Copiar como tabla" sirve para pegar en una planilla.'),
+    sugerencias, aceptadas,
+    h('div', { class: 'tabla-scroll', tabindex: '0', role: 'region', 'aria-label': 'Tabla de cruce con Tesorería' }, tabla),
+  );
+}
+
+function renderSalidasPnp(m, c, cont) {
+  const s = salidasPnp(m, c);
+  if (s.tesoreria) cont.append(tarjetaCruce(m, s.tesoreria));
+  cont.append(tarjetaSalida({ titulo: '1. Diagnóstico', texto: s.diagnostico, clase: 'diagnostico' }));
+  if (s.tesoreria && s.tesoreria.query) {
+    cont.append(tarjetaSalida({
+      titulo: 'Query para encontrar los PNP de los pagos de Tesorería (DB SysAdmin)', texto: s.tesoreria.query,
+      nota: 'Filtra por los lotes EL del mensaje y por los montos (cada pago y la suma por orden). Pegá la grilla en "Resultado de la query" como siempre.',
+    }));
+  }
+
+  if (s.faltantes) {
+    cont.append(tarjetaSalida({ titulo: 'Datos faltantes', texto: s.faltantes, clase: 'faltantes' }));
+    cont.append(tarjetaSalida({
+      titulo: 'Query para traer los datos (DB SysAdmin)', texto: s.query,
+      nota: 'Correla en SSMS, copiá la grilla con encabezados (clic derecho → Copy with Headers) y pegala en "Resultado de la query".',
+    }));
+  }
+
+  for (const t of s.ticketsEL) {
+    const lote = t.lote.lote ? t.lote.lote.id8 : '';
+    const el = CONFIG.areas.EL;
+    const nota = h('div', { class: 'ayuda' },
+      h('p', {}, `Portal: ${el.portal} → ${el.camino}. Usuario: ${el.usuario}. ${el.notaAcceso}`),
+      h('p', {}, 'Mandá los datos en texto: E-Learning usa SIGEAD, no SCI, así que las capturas de SCI no les sirven. Un ticket por lote.'),
+    );
+    const art = h('article', { class: 'tarjeta salida' },
+      h('header', { class: 'salida-cabecera' },
+        h('h3', {}, `2. Ticket a E-Learning${lote ? ` — Lote ${lote}` : ''}`),
+        h('div', { class: 'badges' }, t.borrador ? badge('Borrador', 'b-borrador') : null,
+          contarHuecos(t.resumen + t.descripcion) ? badge(`${contarHuecos(t.resumen + t.descripcion)} huecos para completar`, 'b-alerta') : null),
+      ),
+      nota,
+      h('div', { class: 'sub-salida' }, h('div', { class: 'sub-cabecera' }, h('strong', {}, 'Resumen'), botonCopiar(t.resumen)), preResaltado(t.resumen)),
+      h('div', { class: 'sub-salida' }, h('div', { class: 'sub-cabecera' }, h('strong', {}, 'Descripción'), botonCopiar(t.descripcion)), preResaltado(t.descripcion)),
+    );
+    ui.todo.push({ titulo: `Ticket a E-Learning — Resumen${lote ? ` (Lote ${lote})` : ''}`, texto: t.resumen });
+    ui.todo.push({ titulo: `Ticket a E-Learning — Descripción${lote ? ` (Lote ${lote})` : ''}`, texto: t.descripcion });
+    cont.append(art);
+  }
+
+  for (const mail of s.mails) {
+    const area = mail.area ? CONFIG.areas[mail.area] : null;
+    const lote = mail.lote.lote ? ` — Lote ${mail.lote.lote.id8}` : '';
+    const notas = ['Se pueden adjuntar capturas (inscripción + plan de cuotas) cuando el área usa SCI.'];
+    if (area && area.alternativo) notas.unshift(`También se puede mandar directo a ${area.alternativo}.`);
+    if (!area) notas.unshift('Elegí el área dueña en la tarjeta del PNP para completar el destinatario.');
+    cont.append(tarjetaSalida({
+      titulo: `3. Mail al coordinador${area ? ` (${area.nombre})` : ''}${lote}`, texto: mail.texto, borrador: mail.borrador, nota: notas.join(' '),
+    }));
+  }
+
+  if (s.resoluciones.length) {
+    const art = h('article', { class: 'tarjeta salida' }, h('h3', {}, '4. Descripción Resolución del PNP (campo en SCI)'));
+    for (const r of s.resoluciones) {
+      ui.todo.push({ titulo: `Descripción Resolución — PNP ${r.pnp.id} (¿Pendiente? = ${r.pendiente})`, texto: r.texto });
+      art.append(h('div', { class: 'sub-salida' },
+        h('div', { class: 'sub-cabecera' },
+          h('strong', {}, `PNP ${r.pnp.id}`),
+          badge(`¿Pendiente? = ${r.pendiente}`, r.pendiente === 'Sí' ? 'b-pendiente-si' : 'b-cobro'),
+          r.borrador ? badge('Borrador', 'b-borrador') : null,
+          botonCopiar(r.texto),
+        ),
+        preResaltado(r.texto),
+      ));
+    }
+    if (s.resoluciones.some((r) => /<NÚMERO>|<IDTICKET>/.test(r.texto))) {
+      art.append(h('p', { class: 'aviso aviso-alerta' }, 'Falta el Nº y/o ID de nuestro ticket (columna izquierda → "Tus datos").'));
+    }
+    cont.append(art);
+  }
+
+  if (s.nota) cont.append(tarjetaSalida({ titulo: '5. Nota interna del ticket', texto: s.nota, borrador: m.pnps.some((p) => p.accion.borrador) }));
+  if (s.recordatorio) cont.append(tarjetaSalida({ titulo: '6. Recordatorio de seguimiento', texto: s.recordatorio, clase: 'recordatorio' }));
+  if (s.tesoreria && s.tesoreria.respuesta) {
+    cont.append(tarjetaSalida({
+      titulo: `7. Respuesta a Tesorería (${CONFIG.tesoreria.contacto})`, texto: s.tesoreria.respuesta.texto, borrador: s.tesoreria.respuesta.borrador,
+      nota: s.tesoreria.respuesta.borrador ? 'Borrador: hay PNP sin revisar en SCI, cruces a confirmar o pagos sin cruzar.' : null,
+    }));
+  }
+  if (s.hayCobroManual) {
+    cont.append(tarjetaInfo('Checklist: Cobro manual', h('ol', {}, CHECKLIST_COBRO_MANUAL.map((t) => h('li', {}, t)))));
+  }
+}
+
+function renderNotificacion(m, cont) {
+  const info = m.infoTexto;
+  const lote = m.loteTexto ? m.loteTexto.id8 : '—';
+  const texto = 'Cerrar sin encuesta.';
+  ui.todo.push({ titulo: 'Diagnóstico', texto: `Notificación de lote ${lote} a procesar: nada que resolver. ${texto}` });
+  cont.append(tarjetaInfo('1. Diagnóstico',
+    h('p', { class: 'grande' }, `Notificación de lote ${lote} a procesar: nada que resolver. `, h('strong', {}, texto)),
+    h('p', {}, 'Circuito: E-Learning carga el archivo como Lote a Procesar en estado Pendiente [P] → Tesorería lo pasa a Confirmado [C] (o Rechazado [R]) → SCI procesa los lotes confirmados los días hábiles por la mañana → Procesado [X] o Error [E].'),
+    h('dl', { class: 'datos' },
+      [['Lote', lote], ['Entidad', info.entidad || '—'], ['Archivo', info.archivo || '—'], ['Estado', info.estado || '—']]
+        .map(([k, v]) => [h('dt', {}, k), h('dd', {}, v)])),
+  ));
+}
+
+function renderErrorLote(m, c, cont) {
+  const el = m.errorLote;
+  const lote = el.lote ? el.lote.id8 : '—';
+  cont.append(tarjetaInfo(`1. Diagnóstico — ${el.caso.titulo}`,
+    h('p', { class: 'grande' }, `Error en el Lote ${lote}: no entró ningún pago del lote.`),
+    h('p', {}, h('strong', {}, 'Causa: '), el.caso.causa),
+    h('p', { class: 'aviso aviso-alerta' }, 'Estos tickets los maneja exclusivamente Soporte de Aplicaciones: mover el ticket a la cola "Soporte De Aplicaciones > SCI" y avisar al área.'),
+    h('p', { class: 'aviso aviso-info' }, 'Si el archivo no lo cargó SCI automáticamente (ej. lo carga E-Learning), primero notificar al área con el error y la causa detectada. Se puede ofrecer corregirlo nosotros, pero hay que esperar su autorización antes de modificar/resubir.'),
+    h('h4', {}, 'Pasos'),
+    h('ol', {}, el.caso.pasos.map((t) => h('li', {}, t))),
+    h('p', { class: 'mini' }, `Error textual: ${el.error}`),
+  ));
+
+  let duplicados = [];
+  if (ui.archivoLote.trim()) {
+    duplicados = detectarDuplicados(ui.archivoLote);
+    cont.append(tarjetaSalida({
+      titulo: `Códigos de barras duplicados (${duplicados.length})`,
+      texto: duplicados.length ? duplicados.join('\n') : 'No hay códigos repetidos en los últimos 40 caracteres de cada línea.',
+    }));
+  } else if (el.caso.id === 'duplicados') {
+    cont.append(tarjetaInfo('Detector de duplicados', h('p', { class: 'ayuda' }, 'Pegá el contenido del archivo del lote en la columna izquierda para listar los códigos repetidos. Mientras tanto, la nota usa el código que menciona el error.')));
+  }
+  cont.append(tarjetaSalida({ titulo: '2. Nota del ticket de error de lote', texto: notaErrorLote(el, c, duplicados) }));
+  cont.append(tarjetaSalida({
+    titulo: 'Para el ticket de PNPs que se genere después', texto: `Ticket con error de lote asociado: ${c.ticketId ? CONFIG.urlTicket + c.ticketId : '[COMPLETAR: link]'}`,
+  }));
+}
+
+function renderUsuario(m, cont) {
+  const u = ui.usuario;
+  const monto = parseNumero(u.monto);
+  cont.append(tarjetaInfo('1. Diagnóstico',
+    h('p', { class: 'grande' }, 'Ticket de una persona (no es un mail automático del SCI).'),
+    h('ol', {},
+      h('li', {}, 'Buscar el PNP con los datos del inscripto: nombre, DNI, fecha de pago o monto (query de abajo, o en SCI: Cobros externos → Pagos no Procesables).'),
+      h('li', {}, 'Si aparece, pegá el resultado de la query en "Resultado de la query" y resolvelo como PNP.'),
+      h('li', {}, 'Si no hay PNP con esos datos, pasar la solicitud a Soporte de Aplicaciones.'),
+    ),
+    m.pistas && Object.keys(m.pistas).length
+      ? h('p', { class: 'mini' }, `Detecté en el texto: ${[m.pistas.dni && `DNI ${m.pistas.dni}`, m.pistas.fecha && `fecha ${m.pistas.fecha}`, m.pistas.monto !== undefined && `monto ${formatMonto(m.pistas.monto)}`].filter(Boolean).join(' · ')}`)
+      : null,
+  ));
+  const q = armarQuery({ fecha: u.fecha, monto: monto === null ? '' : monto, texto: u.texto.trim() });
+  cont.append(tarjetaSalida({ titulo: 'Query de PNPs filtrando por fecha / monto', texto: q, nota: 'Completá fecha y/o monto en la columna izquierda para armar el WHERE.' }));
+}
+
+function renderResultados(m) {
+  const c = ctx();
+  ui.todo = [];
+
+  // Tipo
+  const tipo = $('#tipo');
+  tipo.replaceChildren();
+  if (m.tipo !== 'vacio') {
+    const partes = [badge(NOMBRES_TIPO[m.tipo], m.tipo === 'error_lote' ? 'b-error-lote' : 'b-tipo')];
+    if (m.tipo === 'pnp' || m.tipo === 'tesoreria') {
+      m.lotes.forEach((L) => partes.push(badge(L.lote ? `Lote ${L.lote.id8}` : 'Lote ?', 'b-neutro')));
+      if (m.pnps.length || m.tipo === 'pnp') partes.push(badge(`${m.pnps.length} PNP${m.pnps.length === 1 ? '' : 's'}`, 'b-neutro'));
+      if (m.tesoreria) partes.push(badge(`${m.tesoreria.pagos.length} pago${m.tesoreria.pagos.length === 1 ? '' : 's'} de Tesorería`, 'b-neutro'));
+    } else if (m.loteTexto) {
+      partes.push(badge(`Lote ${m.loteTexto.id8}`, 'b-neutro'));
+    }
+    tipo.append(...partes);
+  }
+
+  // Avisos generales
+  const av = $('#avisos');
+  av.replaceChildren();
+  const fechaTxt = $('#fecha').value.trim();
+  if (fechaTxt && !parseFecha(fechaTxt)) av.append(h('p', { class: 'aviso aviso-alerta' }, `La fecha "${fechaTxt}" no es válida (DD/MM/AAAA). Uso la de hoy.`));
+  m.avisos.filter((a) => !a.pnp).forEach((a) => av.append(h('p', { class: `aviso aviso-${a.nivel}` }, a.texto)));
+  const alertasPnp = m.avisos.filter((a) => a.pnp && a.nivel === 'alerta').length;
+  if (alertasPnp) av.append(h('p', { class: 'aviso aviso-alerta' }, `Hay ${alertasPnp} advertencia${alertasPnp === 1 ? '' : 's'} en las tarjetas de PNP.`));
+
+  // Estado de cada PNP
+  for (const p of m.pnps) {
+    const t = document.getElementById(`pnp-${p.idKey}`);
+    if (t) t.querySelector('.pnp-estado').replaceChildren(...estadoPnp(p).flat().filter(Boolean));
+  }
+  $('#pnps-titulo').hidden = m.pnps.length === 0;
+
+  // Salidas
+  const cont = $('#salidas');
+  cont.replaceChildren();
+  if (m.tipo === 'vacio') {
+    cont.append(h('div', { class: 'vacio' },
+      h('p', {}, 'Pegá el texto del ticket o mail del SCI a la izquierda (o el mensaje de Tesorería en el cuadro 4, o cargá un ejemplo) y acá aparecen el diagnóstico y los textos listos para copiar.'),
+    ));
+  } else if (m.tipo === 'notificacion') renderNotificacion(m, cont);
+  else if (m.tipo === 'error_lote') renderErrorLote(m, c, cont);
+  else if (m.tipo === 'usuario') renderUsuario(m, cont);
+  else renderSalidasPnp(m, c, cont);
+
+  $('#copiar-todo').disabled = ui.todo.length === 0;
+}
+
+// ---------------------------------------------------------------------------
+// Inicio
+// ---------------------------------------------------------------------------
+
+function aplicarTema(tema) {
+  document.documentElement.setAttribute('data-theme', tema);
+  const b = $('#tema');
+  b.setAttribute('aria-pressed', tema === 'dark' ? 'true' : 'false');
+  b.textContent = tema === 'dark' ? '☀ Modo claro' : '☾ Modo oscuro';
+}
+
+function cargarEjemplo(id) {
+  const ej = (typeof EJEMPLOS !== 'undefined' ? EJEMPLOS : []).find((e) => e.id === id);
+  if (!ej) return;
+  limpiar(false);
+  $('#texto').value = ej.texto || '';
+  $('#query').value = ej.query || '';
+  $('#tesoreria').value = ej.tesoreria || '';
+  ui.archivoLote = ej.archivoLote || '';
+  ui.overrides = JSON.parse(JSON.stringify(ej.overrides || { lotes: {}, pnps: {} }));
+  ui.overrides.lotes = ui.overrides.lotes || {};
+  ui.overrides.pnps = ui.overrides.pnps || {};
+  ui.estructura = '';
+  recalcular();
+}
+
+function limpiar(recalc = true) {
+  $('#texto').value = '';
+  $('#query').value = '';
+  $('#tesoreria').value = '';
+  $('#ticket-nro').value = '';
+  $('#ticket-id').value = '';
+  $('#recibo').value = '';
+  $('#fecha').value = hoy();
+  ui.overrides = { lotes: {}, pnps: {} };
+  ui.usuario = { fecha: '', monto: '', texto: '' };
+  ui.archivoLote = '';
+  ui.estructura = '';
+  if (recalc) { $('#ejemplo').value = ''; recalcular(); }
+}
+
+function iniciar() {
+  const ejemplos = typeof EJEMPLOS !== 'undefined' ? EJEMPLOS : [];
+  const sel = $('#ejemplo');
+  ejemplos.forEach((e) => sel.append(h('option', { value: e.id }, e.titulo)));
+  sel.addEventListener('change', () => { if (sel.value) cargarEjemplo(sel.value); });
+
+  $('#fecha').value = hoy();
+  const firma = almacen.get('firma');
+  if (firma) $('#firma').value = firma;
+  $('#firma').addEventListener('input', () => { almacen.set('firma', $('#firma').value); recalcularPronto(); });
+  for (const id of ['#fecha', '#ticket-nro', '#ticket-id', '#recibo']) $(id).addEventListener('input', () => recalcularPronto());
+  $('#texto').addEventListener('input', () => recalcularPronto(300));
+  $('#query').addEventListener('input', () => recalcularPronto(300));
+  // El mensaje de Tesorería tiene datos de alumnos: no se guarda en localStorage.
+  $('#tesoreria').addEventListener('input', () => recalcularPronto(300));
+  $('#limpiar').addEventListener('click', () => limpiar());
+  $('#copiar-todo').addEventListener('click', (ev) => {
+    copiar(ui.todo.map((t) => `===== ${t.titulo} =====\n${t.texto}`).join('\n\n'), ev.currentTarget);
+  });
+
+  const guardado = almacen.get('tema');
+  const sistema = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  aplicarTema(guardado === 'dark' || guardado === 'light' ? guardado : sistema);
+  $('#tema').addEventListener('click', () => {
+    const nuevo = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    aplicarTema(nuevo);
+    almacen.set('tema', nuevo);
+  });
+
+  const ayuda = $('#ayuda');
+  document.querySelectorAll('.abrir-ayuda').forEach((b) => b.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    if (typeof ayuda.showModal === 'function') ayuda.showModal(); else ayuda.setAttribute('open', '');
+  }));
+  $('#cerrar-ayuda').addEventListener('click', () => { if (typeof ayuda.close === 'function') ayuda.close(); else ayuda.removeAttribute('open'); });
+
+  const info = typeof BUILD !== 'undefined' ? BUILD : { version: CONFIG.version, fecha: '' };
+  $('#version').textContent = `v${info.version}${info.fecha ? ` · build ${info.fecha}` : ''}`;
+
+  recalcular();
+}
+
+document.addEventListener('DOMContentLoaded', iniciar);
+
+})();
+</script>
+</body>
+</html>

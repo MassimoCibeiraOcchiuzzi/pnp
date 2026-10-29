@@ -1,0 +1,8 @@
+Asunto: Se ha generado un nuevo Lote 00017540
+
+Se ha generado un nuevo Lote 00017540
+Se procesaron 9 Recibos correctamente
+Pagos no procesables
+
+Nº	Codigo de Barras	Error
+00011987	0937022999990025440000881234999900254412	La inscripción asociada a la cuota se encuentra dada de baja

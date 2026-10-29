@@ -1,0 +1,5 @@
+Asunto: Se produjo un error al generar el Lote 00020457
+
+Se ha generado un nuevo Lote 00020457 con el siguiente error Hay más de un registro con el mismo id/codigo de barras en el archivo. Cuota: 0937022999990025130000877393999900251298
+
+Para mas información haga click Aqui

@@ -1,0 +1,8 @@
+Asunto: Se ha generado un nuevo Lote 00015210
+
+Se ha generado un nuevo Lote 00015210
+Se procesaron 5 Recibos correctamente
+Pagos no procesables
+
+Nº	Codigo de Barras	Error
+00010840	0937022999990024315000864369999900243203	No existe una Cuota para el Código 0937022999990024315000864369999900243203

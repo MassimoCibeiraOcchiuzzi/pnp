@@ -1,0 +1,8 @@
+Asunto: Se ha generado un nuevo Lote 00015333
+
+Se ha generado un nuevo Lote 00015333
+Se procesaron 3 Recibos correctamente
+Pagos no procesables
+
+Nº	Codigo de Barras	Error
+00011022	518985	No existe una Cuota para el Código 518985

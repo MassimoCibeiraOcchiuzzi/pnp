@@ -1,0 +1,29 @@
+Buenas tardes,
+
+Me comunico desde el área de Soporte de Aplicaciones ya que tenemos un pago el cual no se pudo procesar en el Sistema de Control de Ingresos (SCI) debido a que el valor abonado no coincide con el valor de la cuota. Por lo tanto tampoco lo podemos impactar manualmente.
+
+A continuación le incluyo más datos:
+
+Entidad Recaudadora: Mercado Pago
+Nombre Archivo/Lote: FP.19.EL.20260923.1881_21760.txt
+
+Error: El monto pagado (166500) no coincide con el monto de la Cuota (129550,0000) ni el monto de pronto pago (129550,0000)
+Código de barras: 0937022999990026253000935644999900262465
+Fecha de pago: 21/07/2026
+Monto pagado: 166.500
+Nombre inscripto: Fernandez Aguirre, Bruno Ignacio
+Concepto Ingreso: Diplomatura en Relaciones Internacionales
+SubConcepto Ingreso: 2538
+Plan Pago: $222000 en un pago completo en pesos
+
+Ademas, en el mismo lote, algunos pagos apuntan a un numero de cuota inexistente.
+
+Error: No existe una Cuota para el Código 0937022999990026222000949154999900262371
+Código de barras: 0937022999990026222000949154999900262371
+Fecha de pago: 22/07/2026
+Monto pagado: 262.682
+Nombre inscripto: Ruiz Ortega, Micaela Belen
+
+Quedamos al pendiente acerca de cómo proceder en este caso.
+
+Saludos cordiales.

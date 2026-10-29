@@ -1,0 +1,5 @@
+Asunto: Se produjo un error al generar el Lote 00020472
+
+Se ha generado un nuevo Lote 00020472 con el siguiente error Object reference not set to an instance of an object.
+
+Para mas información haga click Aqui

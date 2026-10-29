@@ -1,0 +1,13 @@
+Asunto: Se ha generado un nuevo Lote Nro: 00001684
+
+Estimados el Centro de e-Learning cargo el siguiente Nro Lote: 00001684
+
+Detalles del lote en cuestión:
+
+Nro. Lote: 1684
+Entidad Recaudadora: Mercado Pago
+Monto Bruto: 8673698,00
+Comisión: 259182,57
+Observaciones: Fecha cobro desde: 2025-06-03 Fecha cobro hasta: 2025-06-10 MP
+Archivo: C:\inetpub\eFramework\Data\sites\SCI\ArchivosCobranza\ELEARNING\MERCADOPAGO\PENDIENTE\FP.9.EL.20250613.1684.txt
+Estado: PENDIENTE
